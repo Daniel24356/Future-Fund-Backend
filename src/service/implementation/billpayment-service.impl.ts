@@ -1,5 +1,5 @@
 import { BillPayment } from "@prisma/client";
-import { PayBillDTO } from "../../dto/paybill.dto";
+import { PayBillDTO } from "../../dto/payBill.dto";
 import { BillPaymentService } from "../billpayment.service";
 
 
