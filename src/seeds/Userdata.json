@@ -1,0 +1,123 @@
+[
+  {
+    "firstName": "Adebayo",
+    "lastName": "Michael",
+    "email": "mcgamma04@yahoo.com",
+    "password": "12345",
+    "role": "ADMIN",
+    "phoneNumber": "08123456789",
+    "balance": 50000.0,
+    "createdAt": "2025-03-04T12:00:00Z",
+    "updatedAt": "2025-03-04T12:00:00Z"
+  },
+  {
+    "firstName": "Henshaw",
+    "lastName": "Kingsley",
+    "email": "henz@gmail.com",
+    "password": "12345",
+    "role": "USER",
+    "phoneNumber": "08098765432",
+    "balance": 25000.5,
+    "createdAt": "2025-03-04T12:05:00Z",
+    "updatedAt": "2025-03-04T12:05:00Z"
+  },
+  {
+    "firstName": "Bola",
+    "lastName": "Tinubu",
+    "email": "bola@gmail.com",
+    "password": "12345",
+    "role": "USER",
+    "phoneNumber": "09012345678",
+    "balance": 8000.75,
+    "createdAt": "2025-03-04T12:10:00Z",
+    "updatedAt": "2025-03-04T12:10:00Z"
+  },
+  {
+    "firstName": "Olivia",
+    "lastName": "Brown",
+    "email": "olivia.brown@example.com",
+    "password": "password123",
+    "role": "USER",
+    "phoneNumber": "08154321123",
+    "balance": 12000.0,
+    "createdAt": "2025-03-04T12:15:00Z",
+    "updatedAt": "2025-03-04T12:15:00Z"
+  },
+  {
+    "firstName": "Daniel",
+    "lastName": "Smith",
+    "email": "daniel.smith@example.com",
+    "password": "mypassword",
+    "role": "ADMIN",
+    "phoneNumber": "07011223344",
+    "balance": 100000.0,
+    "createdAt": "2025-03-04T12:20:00Z",
+    "updatedAt": "2025-03-04T12:20:00Z"
+  },
+  {
+    "firstName": "Sophia",
+    "lastName": "Wilson",
+    "email": "sophia.wilson@example.com",
+    "password": "sophia123",
+    "role": "USER",
+    "phoneNumber": "08099887766",
+    "balance": 30000.0,
+    "createdAt": "2025-03-04T12:25:00Z",
+    "updatedAt": "2025-03-04T12:25:00Z"
+  },
+  {
+    "firstName": "Elijah",
+    "lastName": "Johnson",
+    "email": "elijah.johnson@example.com",
+    "password": "elijah2025",
+    "role": "USER",
+    "phoneNumber": "08123499887",
+    "balance": 500.0,
+    "createdAt": "2025-03-04T12:30:00Z",
+    "updatedAt": "2025-03-04T12:30:00Z"
+  },
+  {
+    "firstName": "Mason",
+    "lastName": "Garcia",
+    "email": "mason.garcia@example.com",
+    "password": "masonPass",
+    "role": "USER",
+    "phoneNumber": "09077889900",
+    "balance": 7000.5,
+    "createdAt": "2025-03-04T12:35:00Z",
+    "updatedAt": "2025-03-04T12:35:00Z"
+  },
+  {
+    "firstName": "Emma",
+    "lastName": "Martinez",
+    "email": "emma.martinez@example.com",
+    "password": "emmaSecure",
+    "role": "USER",
+    "phoneNumber": "08033445566",
+    "balance": 9000.0,
+    "createdAt": "2025-03-04T12:40:00Z",
+    "updatedAt": "2025-03-04T12:40:00Z"
+  },
+  {
+    "firstName": "Liam",
+    "lastName": "Anderson",
+    "email": "liam.anderson@example.com",
+    "password": "liam2025",
+    "role": "ADMIN",
+    "phoneNumber": "08112233445",
+    "balance": 120000.0,
+    "createdAt": "2025-03-04T12:45:00Z",
+    "updatedAt": "2025-03-04T12:45:00Z"
+  },
+  {
+    "firstName": "Ava",
+    "lastName": "Thomas",
+    "email": "ava.thomas@example.com",
+    "password": "avaSecure",
+    "role": "USER",
+    "phoneNumber": "09055667788",
+    "balance": 3500.0,
+    "createdAt": "2025-03-04T12:50:00Z",
+    "updatedAt": "2025-03-04T12:50:00Z"
+  }
+]
