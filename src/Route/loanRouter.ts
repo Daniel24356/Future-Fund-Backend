@@ -8,6 +8,6 @@ const loanRouter = express.Router();
 loanRouter.post("/", loancontroller.applyForLoan)
 loanRouter.get("/getUserloans", loancontroller.getUserLoans);
 loanRouter.post("/repayloan", loancontroller.repayLoan);
-loanRouter.post("/updateloanStatus",loancontroller.updateLoanStatus);
+loanRouter.post("/update-loan-status",loancontroller.updateLoanStatus);
 
 export default loanRouter
