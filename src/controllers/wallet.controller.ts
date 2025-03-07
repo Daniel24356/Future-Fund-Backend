@@ -3,6 +3,7 @@ import { BillPaymentServiceImpl } from "../service/implementation/billpayment-se
 import { ContributionServiceImpl } from "../service/implementation/contribution-service.impl";
 import { LoanServiceImpl } from "../service/implementation/loan-service.impl";
 import { WalletServiceImpl } from "../service/implementation/wallet-service.impl";
+import { TransferFundsDTO } from "../dto/wallet.dto";
 
 
 export class WalletController{
@@ -54,7 +55,9 @@ export class WalletController{
         next: NextFunction
       ): Promise<void> => {
         try{
-         console.log("first")
+          const data = req.body as TransferFundsDTO;
+          const transaction = await this.walletService.transferFunds(data);
+          res.status(200).json(transaction);
        }catch(error){
           next(error)
         }
