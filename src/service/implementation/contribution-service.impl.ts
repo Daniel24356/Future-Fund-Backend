@@ -28,10 +28,28 @@ export class ContributionServiceImpl implements ContributionService{
        })
        return contributionRoom
     }
-    
-    joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
-        throw new Error("Method not implemented.");
+
+
+
+    async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
+        const isMemberExists = await db.contributionMember.findFirst({
+            where: {
+              userId: data.userId,
+            }
+        })
+        if(isMemberExists){
+            throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
+        }
+
+        const newMember = await db.contributionMember.create({
+              data: {
+                userId: data.userId,
+                contributionId: data.contributionId
+              }
+        })
+        return newMember
     }
+    
     payContribution(data: PayContributionDTO): Promise<ContributionMember> {
         throw new Error("Method not implemented.");
     }
