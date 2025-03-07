@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { BillPaymentServiceImpl } from "../service/implementation/billpayment-service.impl";
 import { ContributionServiceImpl } from "../service/implementation/contribution-service.impl";
+import { CreateContributionDTO } from "../dto/createContribution.dto";
 
 
 export class ContributionController{
@@ -16,7 +17,9 @@ export class ContributionController{
          next: NextFunction
        ): Promise<void> => {
          try{
-          console.log("first")
+          const contributionData = req.body as CreateContributionDTO
+          const newContribution = await this.contributionService.createContribution(contributionData)
+          res.status(201).json(newContribution)
         }catch(error){
            next(error)
          }
