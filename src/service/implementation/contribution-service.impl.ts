@@ -1,22 +1,103 @@
-import { Contribution, ContributionMember } from "@prisma/client";
+import {
+  Contribution,
+  ContributionMember,
+  PaymentStatus,
+} from "@prisma/client";
 import { CreateContributionDTO } from "../../dto/createContribution.dto";
 import { JoinContributionDTO } from "../../dto/joinContribution.dto";
 import { PayContributionDTO } from "../../dto/payContribution.dto";
 import { ContributionService } from "../contribution.service";
+import { db } from "../../configs/db";
+import { CustomError } from "../../exceptions/error/customError.error";
+import { StatusCodes } from "http-status-codes";
 
+export class ContributionServiceImpl implements ContributionService {
+  createContribution(data: CreateContributionDTO): Promise<Contribution> {
+    throw new Error("Method not implemented.");
+  }
+  joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
+    throw new Error("Method not implemented.");
+  }
 
-export class ContributionServiceImpl implements ContributionService{
-    createContribution(data: CreateContributionDTO): Promise<Contribution> {
-        throw new Error("Method not implemented.");
+  async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
+    const { userId, contributionId, amount } = data;
+
+    const user = await db.user.findUnique({ 
+      where: { id: userId } 
+    });
+    if (!user) {
+      throw new CustomError(StatusCodes.NOT_FOUND, "User not found");
     }
-    joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
-        throw new Error("Method not implemented.");
+
+    const contributionMember = await db.contributionMember.findFirst({
+      where: { userId, contributionId },
+      include: { contribution: true },
+    });
+    if (!contributionMember) {
+      throw new CustomError(
+        StatusCodes.NOT_FOUND,
+        "Contribution record not found for this user"
+      );
     }
-    payContribution(data: PayContributionDTO): Promise<ContributionMember> {
-        throw new Error("Method not implemented.");
+
+    if (contributionMember.status === PaymentStatus.PAID) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        "Contribution is already paid"
+      );
     }
-    getUserContributions(userId: string): Promise<ContributionMember[]> {
-        throw new Error("Method not implemented.");
+
+    const requiredAmount = contributionMember.contribution.amountPerUser;
+    if (amount !== requiredAmount) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        `Invalid payment amount. Expected ${requiredAmount}`
+      );
     }
+
+    if (user.balance < amount) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        "Insufficient balance to pay contribution"
+      );
+    }
+
+    console.log(
+      `Simulating payment of ${amount} for user ${userId} on contribution ${contributionId}`
+    );
     
+    const [updatedUser, updatedContributionMember] = await db.$transaction([
+      db.user.update({
+        where: { id: userId },
+        data: { balance: user.balance - amount },
+      }),
+      db.contributionMember.update({
+        where: { id: contributionMember.id },
+        data: { status: PaymentStatus.PAID },
+      }),
+    ]);
+
+    return updatedContributionMember;
+  }
+
+  async getUserContributions(userId: string): Promise<ContributionMember[]> {
+    const isUser = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!isUser) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "This user doesn't exist");
+    }
+
+    const contributions = await db.contributionMember.findMany({
+      where: { userId },
+      include: {
+        contribution: true,
+      },
+    });
+
+    return contributions;
+  }
 }
