@@ -121,7 +121,7 @@ model Contribution {
   id            String  @id @default(uuid())
   name          String
   createdBy     User    @relation(fields: [createdById], references: [id])
-  createdById   String
+  createdById   String  
   members       ContributionMember[]
   amountPerUser Float
   cycle         String
