@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, Min, IsDateString } from "class-validator";
 
 export class ApplyLoanDTO {
     @IsNotEmpty()
@@ -8,13 +8,10 @@ export class ApplyLoanDTO {
 
     @IsNotEmpty()
     @IsNumber()
-    interestRate!: number;
+    dueAmount!: number; 
 
     @IsNotEmpty()
-    @IsNumber()
-    totalRepayable!: number;
+    @IsDateString()
+    dueDate!: string; 
 
-    @IsNotEmpty()
-    @IsNumber()
-    monthlyPayment!: number;
 }
