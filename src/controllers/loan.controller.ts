@@ -47,7 +47,7 @@ export class LoanController{
           next(error)
         }
       }
-
+      
       public  getUserLoans = async(
         req: CustomRequest,
         res: Response,
@@ -55,7 +55,7 @@ export class LoanController{
       ): Promise<void> => {
         try{
          const userId = req.userAuth;
-         const results = await this.loanService.getUserLoans(userId!);
+         const results = await this.loanService.getUserLoans(userId!, req.query);
          res.status(StatusCodes.OK).send(results);
        }catch(error){
           next(error)
