@@ -11,6 +11,7 @@ import contributionRouter from "./Route/contributionRouter";
 import investmentRouter from "./Route/investmentRouter";
 import loanRouter from "./Route/loanRouter";
 import walletRouter from "./Route/walletRouter";
+import "./Jobs/LoanPayment.job"; 
 
 dotenv.config();
 

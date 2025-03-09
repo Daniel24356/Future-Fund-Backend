@@ -33,6 +33,7 @@ import jwt, { JwtPayload } from "jsonwebtoken"
               return;
             }
 
+
             const payload = decode as JwtPayload;
             req.userAuth = payload.id;
             next()
