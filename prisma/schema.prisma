@@ -80,6 +80,7 @@ model Transaction {
 
 model Loan {
   id              String     @id @default(uuid())
+  cursor Int @default(autoincrement()) @unique
   user            User       @relation(fields: [userId], references: [id])
   userId          String
   amount          Float

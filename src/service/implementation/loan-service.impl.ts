@@ -2,6 +2,7 @@ import { Loan } from "@prisma/client";
 import { ApplyLoanDTO } from "../../dto/applyLoan.dto";
 import { RepayLoanDTO } from "../../dto/repayLoan.dto";
 import { LoanService } from "../loan.service";
+import { db } from "../../configs/db";
 
 
 export class LoanServiceImpl implements LoanService{
@@ -15,7 +16,10 @@ export class LoanServiceImpl implements LoanService{
         throw new Error("Method not implemented.");
     }
     getUserLoans(userId: string): Promise<Loan[]> {
-        throw new Error("Method not implemented.");
-    }
-    
+        const loans = db.loan.findMany({
+            where: {userId}, 
+            orderBy: {createdAt: 'desc'},
+         });
+         return loans;
+    };   
 }
