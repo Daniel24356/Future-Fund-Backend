@@ -9,26 +9,25 @@ export class LoanServiceImpl implements LoanService{
     applyForLoan(data: ApplyLoanDTO): Promise<Loan> {
         throw new Error("Method not implemented.");
     }
-    async updateLoanStatus(loanId: string, status: "APPROVED" | "REJECTED"): Promise<Loan> {
+    async updateLoanStatus(loanId: string, newStatus: "APPROVED" | "REJECTED"): Promise<Loan | null> {
         try {
-            const loan = await prisma.loan.findUnique({
-                where: { id: loanId },
-            });
+           
+            const loan = await prisma.loan.findUnique({ where: { id: loanId } });
 
             if (!loan) {
                 throw new Error("Loan not found");
             }
 
+            
             const updatedLoan = await prisma.loan.update({
                 where: { id: loanId },
-                data: { status },
+                data: { status: newStatus }
             });
 
             return updatedLoan;
-        } catch (error: unknown) {  
-            const err = error as Error; 
-            console.error("Error updating loan status:", err.message);
-            throw new Error(err.message); 
+        } catch (error) {
+            console.error("Error updating loan status:", error);
+            throw new Error("Failed to update loan status");
         }
     }
     repayLoan(data: RepayLoanDTO): Promise<Loan> {

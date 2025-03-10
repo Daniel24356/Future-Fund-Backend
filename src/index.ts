@@ -12,7 +12,7 @@ import investmentRouter from "./Route/investmentRouter";
 import loanRouter from "./Route/loanRouter";
 import walletRouter from "./Route/walletRouter";
 
-dotenv.config();
+dotenv.config();          
 
 const portEnv = process.env.PORT;
 if(!portEnv){

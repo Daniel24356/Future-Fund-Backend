@@ -1,13 +1,12 @@
-import express from "express"
+import express from "express";
 import { LoanController } from "../controllers/loan.controller";
-
 
 const loancontroller = new LoanController();
 const loanRouter = express.Router();
 
-loanRouter.post("/", loancontroller.applyForLoan)
+loanRouter.post("/", loancontroller.applyForLoan);
 loanRouter.get("/getUserloans", loancontroller.getUserLoans);
 loanRouter.post("/repayloan", loancontroller.repayLoan);
-loanRouter.post("/update-loan-status",loancontroller.updateLoanStatus);
+loanRouter.patch("/update-loan-status", loancontroller.updateLoanStatus); 
 
-export default loanRouter
+export default loanRouter;
