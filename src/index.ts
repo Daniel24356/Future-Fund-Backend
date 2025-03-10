@@ -42,7 +42,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-// setupSwagger(app);
+setupSwagger(app);
+
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/login", authRouter)
 app.use("/api/v1/otp", otpRouter)

@@ -12,6 +12,9 @@ import { CustomError } from "../../exceptions/error/customError.error";
 import { StatusCodes } from "http-status-codes";
 
 export class ContributionServiceImpl implements ContributionService {
+  // getUserContributions(userId: string): Promise<ContributionMember[]> {
+  //   throw new Error("Method not implemented.");
+  // }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
     const { userId, contributionId, amount } = data;
@@ -40,6 +43,38 @@ export class ContributionServiceImpl implements ContributionService {
         "Contribution is already paid"
       );
     }
+
+    const requiredAmount = contributionMember.contribution.amountPerUser;
+    if (amount !== requiredAmount) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        `Invalid payment amount. Expected ${requiredAmount}`
+      );
+    }
+
+    if (user.balance < amount) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        "Insufficient balance to pay contribution"
+      );
+    }
+
+    console.log(
+      `Simulating payment of ${amount} for user ${userId} on contribution ${contributionId}`
+    );
+    
+    const [updatedUser, updatedContributionMember] = await db.$transaction([
+      db.user.update({
+        where: { id: userId },
+        data: { balance: user.balance - amount },
+      }),
+      db.contributionMember.update({
+        where: { id: contributionMember.id },
+        data: { status: PaymentStatus.PAID },
+      }),
+    ]);
+
+    return updatedContributionMember;
   }
 
    async createContribution(data: CreateContributionDTO): Promise<Contribution> {
@@ -83,39 +118,8 @@ export class ContributionServiceImpl implements ContributionService {
         return newMember
     }
     
-
-    const requiredAmount = contributionMember.contribution.amountPerUser;
-    if (amount !== requiredAmount) {
-      throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        `Invalid payment amount. Expected ${requiredAmount}`
-      );
-    }
-
-    if (user.balance < amount) {
-      throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        "Insufficient balance to pay contribution"
-      );
-    }
-
-    console.log(
-      `Simulating payment of ${amount} for user ${userId} on contribution ${contributionId}`
-    );
     
-    const [updatedUser, updatedContributionMember] = await db.$transaction([
-      db.user.update({
-        where: { id: userId },
-        data: { balance: user.balance - amount },
-      }),
-      db.contributionMember.update({
-        where: { id: contributionMember.id },
-        data: { status: PaymentStatus.PAID },
-      }),
-    ]);
 
-    return updatedContributionMember;
-  }
 
   async getUserContributions(userId: string): Promise<ContributionMember[]> {
     const isUser = await db.user.findFirst({

@@ -6,7 +6,7 @@ import { GetUserLoanDto } from "../dto/getUserloan.dto"
 export interface GetUserLoanResponse {
   loans: Loan[];
   limit: number;
-  cursor: number;
+  cursor: string | null;
 }
 
 export interface LoanService {

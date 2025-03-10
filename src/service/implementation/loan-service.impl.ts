@@ -3,13 +3,8 @@ import { ApplyLoanDTO } from "../../dto/applyLoan.dto";
 import { RepayLoanDTO } from "../../dto/repayLoan.dto";
 import { GetUserLoanResponse, LoanService } from "../loan.service";
 import { db } from "../../configs/db";
-import { GetUserLoanDto } from "../../dto/getUserLoan.dto";
-import { LoanService } from "../loan.service";
+import { GetUserLoanDto } from "../../dto/getUserloan.dto";
 import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-
 
 const prisma = new PrismaClient();
 
@@ -109,26 +104,27 @@ export class LoanServiceImpl implements LoanService{
 
     async getUserLoans(userId: string, dto: GetUserLoanDto): Promise<GetUserLoanResponse> {
         const limit = dto.limit ? parseInt(dto.limit) : 50;
+    
         let query: Prisma.LoanFindManyArgs = {
             where: { userId },
             take: limit,
             orderBy: { createdAt: 'desc' },
         };
-
+    
         if (dto.cursor) {
             query = {
                 ...query,
                 skip: 1,
-                cursor: { cursor: parseInt(dto.cursor) }
+                cursor: { id: dto.cursor } 
             };
         }
-
+    
         const loans = await db.loan.findMany(query);
-        const cursor = loans[limit - 1]?.cursor ?? null;
-
+        const nextCursor = loans.length === limit ? loans[loans.length - 1]?.id : null; 
+    
         return {
             loans,
-            cursor,
+            cursor: nextCursor,
             limit,
         };
     }
