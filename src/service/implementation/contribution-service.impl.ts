@@ -12,12 +12,6 @@ import { CustomError } from "../../exceptions/error/customError.error";
 import { StatusCodes } from "http-status-codes";
 
 export class ContributionServiceImpl implements ContributionService {
-  createContribution(data: CreateContributionDTO): Promise<Contribution> {
-    throw new Error("Method not implemented.");
-  }
-  joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
-    throw new Error("Method not implemented.");
-  }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
     const { userId, contributionId, amount } = data;
@@ -46,6 +40,49 @@ export class ContributionServiceImpl implements ContributionService {
         "Contribution is already paid"
       );
     }
+  }
+
+   async createContribution(data: CreateContributionDTO): Promise<Contribution> {
+       const isContributionExists = await db.contribution.findFirst({
+        where: {
+            name: data.name,
+        }
+       })
+       if(isContributionExists){
+         throw new CustomError(StatusCodes.BAD_REQUEST, "Contribution Room already exists")
+       }
+       const contributionRoom = await db.contribution.create({
+         data: {
+              createdById: data.createdById,
+              name: data.name,
+              amountPerUser: data.amountPerUser,
+              cycle: data.cycle,
+         }
+       })
+       return contributionRoom
+    }
+
+
+
+    async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
+        const isMemberExists = await db.contributionMember.findFirst({
+            where: {
+              userId: data.userId,
+            }
+        })
+        if(isMemberExists){
+            throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
+        }
+
+        const newMember = await db.contributionMember.create({
+              data: {
+                userId: data.userId,
+                contributionId: data.contributionId
+              }
+        })
+        return newMember
+    }
+    
 
     const requiredAmount = contributionMember.contribution.amountPerUser;
     if (amount !== requiredAmount) {
