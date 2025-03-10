@@ -6,8 +6,8 @@ const walletcontroller = new WalletController();
 const walletRouter = express.Router();
 
 walletRouter.post("/", walletcontroller.depositFunds)
-walletRouter.get("/getUserBalance", walletcontroller.getUserBalance);
-walletRouter.get("/getUserTransactions",walletcontroller.getUserTransactions);
+walletRouter.get("/getUserBalance/:userId", walletcontroller.getUserBalance);
+walletRouter.get("/getUserTransactions/:userId",walletcontroller.getUserTransactions);
 walletRouter.post("/transferFunds",walletcontroller.transferFunds);
 walletRouter.post("/withdrawal",walletcontroller.withdrawFunds);
 
