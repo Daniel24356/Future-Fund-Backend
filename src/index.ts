@@ -14,7 +14,7 @@ import walletRouter from "./Route/walletRouter";
 import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
 
-dotenv.config();
+dotenv.config();          
 
 const portEnv = process.env.PORT;
 if(!portEnv){
