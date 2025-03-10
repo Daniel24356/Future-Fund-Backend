@@ -13,17 +13,19 @@ export class WalletController{
         this.walletService = new WalletServiceImpl();
      }
 
-     public getUserBalance = async(
-         req: Request,
-         res: Response,
-         next: NextFunction
-       ): Promise<void> => {
-         try{
-          console.log("first")
-        }catch(error){
-           next(error)
-         }
-       }
+     public getUserBalance = async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+  ): Promise<void> => {
+      try {
+          const { userId } = req.params;
+          const balance = await this.walletService.getUserBalance(userId);
+          res.status(200).json({ balance });
+      } catch (error) {
+          next(error);
+      }
+  };
 
        public depositFunds = async(
         req: Request,
@@ -37,17 +39,19 @@ export class WalletController{
         }
       }
 
-      public withdrawFunds = async(
+      public withdrawFunds = async (
         req: Request,
         res: Response,
         next: NextFunction
-      ): Promise<void> => {
-        try{
-         console.log("first")
-       }catch(error){
-          next(error)
+    ): Promise<void> => {
+        try {
+            const { userId, amount, description } = req.body;
+            const transaction = await this.walletService.withdrawFunds(userId, amount, description);
+            res.status(201).json(transaction);
+        } catch (error) {
+            next(error);
         }
-      }
+    };
 
       public  transferFunds = async(
         req: Request,
@@ -63,16 +67,17 @@ export class WalletController{
         }
       }
 
-      public getUserTransactions = async(
+      public getUserTransactions = async (
         req: Request,
         res: Response,
         next: NextFunction
-      ): Promise<void> => {
-        try{
-         console.log("first")
-       }catch(error){
-          next(error)
+    ): Promise<void> => {
+        try {
+            const { userId } = req.params;
+            const transactions = await this.walletService.getUserTransactions(userId);
+            res.status(200).json(transactions);
+        } catch (error) {
+            next(error);
         }
-      }
-
+    };
 }

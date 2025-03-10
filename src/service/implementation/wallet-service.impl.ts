@@ -5,12 +5,15 @@ import { db } from "../../configs/db";
 import { CustomError } from "../../exceptions/error/customError.error";
 import { TransferFundsDTO } from "../../dto/wallet.dto";
 
-
+const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{
-    private paymentService = new PaymentServiceImpl();
 
-    getUserBalance(userId: string): Promise<number> {
-        throw new Error("Method not implemented.");
+   async getUserBalance(userId: string): Promise<number> {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user.balance;
     }
 
     async depositFunds(userId: string, amount: number, description?: string): Promise<{transaction: Transaction, paymentResponse: PaymentInitializationResponse}> {
@@ -36,8 +39,38 @@ export class WalletServiceImpl implements WalletService{
         return {transaction, paymentResponse};
     }
 
-    withdrawFunds(userId: string, amount: number, description?: string): Promise<Transaction> {
-        throw new Error("Method not implemented.");
+    async withdrawFunds(userId: string, amount: number, description?: string): Promise<Transaction> {
+        if (amount <= 0) {
+            throw new Error("Invalid withdrawal amount.");
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        if (user.balance < amount) {
+            throw new Error("Insufficient funds.");
+        }
+
+        // Deduct balance and create transaction
+        const transaction = await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: { id: userId },
+                data: { balance: { decrement: amount } },
+            });
+
+            return await tx.transaction.create({
+                data: {
+                    userId,
+                    type: TransactionType.WITHDRAWAL,
+                    amount,
+                    description: description || "Withdrawal",
+                },
+            });
+        });
+
+        return transaction;
     }
 
     async transferFunds(data: TransferFundsDTO): Promise<Transaction|undefined> {
@@ -90,7 +123,12 @@ export class WalletServiceImpl implements WalletService{
         }
     }
 
-    getUserTransactions(userId: string): Promise<Transaction[]> {
-        throw new Error("Method not implemented.");
+   async getUserTransactions(userId: string): Promise<Transaction[]> {
+       const transactions = await prisma.transaction.findMany({
+        where: {userId},
+        orderBy: {createdAt: "desc"}
+       })
+       return transactions
+
     }
 }
