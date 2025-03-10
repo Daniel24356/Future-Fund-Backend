@@ -89,10 +89,12 @@ model Loan {
   cursor Int @default(autoincrement()) @unique
   user            User       @relation(fields: [userId], references: [id])
   userId          String
+  autoPaymentEnabled Boolean @default(false) 
   amount          Float
   interestRate    Float
   totalRepayable  Float
-  monthlyPayment  Float
+  term            Int 
+  dueAmount       Float
   status          LoanStatus @default(PENDING)
   dueDate         DateTime?
   paidAmount      Float      @default(0.0)

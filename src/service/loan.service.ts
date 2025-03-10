@@ -10,8 +10,9 @@ export interface GetUserLoanResponse {
 }
 
 export interface LoanService {
-  applyForLoan(data: ApplyLoanDTO): Promise<Loan>;
+
+  applyForLoan(data: ApplyLoanDTO, userId: string): Promise<Loan>;
+  repayLoan(data: RepayLoanDTO, userId: string): Promise<Loan>; 
   updateLoanStatus(loanId: string, status: "APPROVED" | "REJECTED"): Promise<Loan | null>; // ✅ Allow null
-  repayLoan(data: RepayLoanDTO): Promise<Loan>;
   getUserLoans(userId: string, dto: GetUserLoanDto): Promise<GetUserLoanResponse>;
 }
