@@ -100,7 +100,7 @@ export class ContributionServiceImpl implements ContributionService {
        if(isContributionExists){
          throw new CustomError(StatusCodes.BAD_REQUEST, "Contribution Room already exists")
        }
-       const contributionRoom = await prisma.contribution.create({
+       const contributionRoom = await db.contribution.create({
          data: {
               createdById: data.createdById,
               name: data.name,
