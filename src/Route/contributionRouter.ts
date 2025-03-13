@@ -10,6 +10,6 @@ contributionRouter.post("/", contributioncontroller.createContribution)
 contributionRouter.get("/getUserContribution/:userId", contributioncontroller.getUserContributions);
 contributionRouter.post("/joinContribution", authenticateUser, contributioncontroller.joinContribution);
 contributionRouter.post("/payContribution", authenticateUser, contributioncontroller.payContribution);
-contributionRouter.get("/members", contributioncontroller.getAllContributionMembers)
+contributionRouter.get("/:contributionId/members", contributioncontroller.getAllContributionMembers)
 
 export default contributionRouter;
