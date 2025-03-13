@@ -69,4 +69,18 @@ export class ContributionController{
         }
       }
 
+      public getAllContributionMembers = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise <void> => {
+        try{
+          const contributionId = req.params.id
+          const members = await this.contributionService.getAllContributionMembers(contributionId)
+          res.status(200).json(members)
+        }catch(error){
+          next(error)
+        }
+      }
+
 }

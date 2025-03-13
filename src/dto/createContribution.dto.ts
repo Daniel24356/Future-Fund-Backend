@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsUUID, IsNumber, Min, Length } from "class-validator";
+import { ContributionCycle } from "@prisma/client";
+import { IsNotEmpty, IsUUID, IsNumber, Min, Length, IsEnum } from "class-validator";
 
 export class CreateContributionDTO {
     @IsUUID()
@@ -12,9 +13,13 @@ export class CreateContributionDTO {
     @IsNotEmpty()
     @IsNumber()
     @Min(1)
-    amountPerUser!: number;
+    amountPerUser!: number
 
     @IsNotEmpty()
-    @Length(3, 50)
-    cycle!: string;
+    @IsEnum(ContributionCycle)
+    cycle!: ContributionCycle
+
+    @IsNotEmpty()
+    @IsNumber()
+    maxMembers!: number
 }
