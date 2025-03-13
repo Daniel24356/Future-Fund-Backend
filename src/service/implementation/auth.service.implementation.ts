@@ -19,9 +19,9 @@ export class AuthServiceImp implements AuthService {
     async login(data: loginDTO): Promise<{ accessToken: string; refreshToken: string; }> {
 
         const isUserExist = await db.user.findUnique({
-            where: {
-                email: data.email
-            },
+          where: {
+            email: data.email
+          },
         })
 
         if (!isUserExist) {
