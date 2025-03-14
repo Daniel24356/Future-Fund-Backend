@@ -1,4 +1,4 @@
-import { DepositStatus, Transaction, TransactionType } from "@prisma/client";
+import { DepositStatus, PrismaClient, Transaction, TransactionType } from "@prisma/client";
 import { WalletService } from "../wallet.service";
 import { PaymentInitializationResponse, PaymentServiceImpl } from "../PaystackInitialization";
 import { db } from "../../configs/db";
@@ -7,13 +7,23 @@ import { TransferFundsDTO } from "../../dto/wallet.dto";
 
 const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{
+    [x: string]: any;
 
-   async getUserBalance(userId: string): Promise<number> {
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) {
-            throw new Error("User not found");
+    async getUserBalance(userId: string): Promise<number> {
+        if (!userId) {
+          throw new Error("User ID is required");
         }
-        return user.balance;
+    
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { balance: true }, // Select only the balance field for efficiency
+        });
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        if (!user) {
+          throw new Error("User not found");    
+        }
+    
+        return user.balance; // Ensures the balance is returned as a number
     }
 
     async depositFunds(userId: string, amount: number, description?: string): Promise<{transaction: Transaction, paymentResponse: PaymentInitializationResponse}> {
@@ -123,12 +133,16 @@ export class WalletServiceImpl implements WalletService{
         }
     }
 
-   async getUserTransactions(userId: string): Promise<Transaction[]> {
-       const transactions = await prisma.transaction.findMany({
-        where: {userId},
-        orderBy: {createdAt: "desc"}
-       })
-       return transactions
-
+    async getUserTransactions(userId: string): Promise<Transaction[]> {
+        if (!userId) {
+          throw new Error("User ID is required");
+        }
+    
+        const transactions = await prisma.transaction.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+        });
+    
+        return transactions;
     }
 }

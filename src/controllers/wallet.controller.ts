@@ -13,19 +13,22 @@ export class WalletController{
         this.walletService = new WalletServiceImpl();
      }
 
-     public getUserBalance = async (
-      req: Request,
-      res: Response,
-      next: NextFunction
-  ): Promise<void> => {
+     public getUserBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-          const { userId } = req.params;
-          const balance = await this.walletService.getUserBalance(userId);
-          res.status(200).json({ balance });
+        const { userId } = req.params;
+  
+        if (!userId) {
+          res.status(400).json({ message: "User ID is required" });
+          return;
+        }
+  
+        const balance = await this.walletService.getUserBalance(userId);
+        res.status(200).json({ success: true, balance });
       } catch (error) {
-          next(error);
+        console.error("Error fetching user balance:", error);
+        next(error);
       }
-  };
+     };
 
        public depositFunds = async(
         req: Request,
@@ -67,17 +70,20 @@ export class WalletController{
         }
       }
 
-      public getUserTransactions = async (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> => {
+      public getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const { userId } = req.params;
-            const transactions = await this.walletService.getUserTransactions(userId);
-            res.status(200).json(transactions);
+          const { userId } = req.params;
+    
+          if (!userId) {
+            res.status(400).json({ message: "User ID is required" });
+            return;
+          }
+    
+          const transactions = await this.walletService.getUserTransactions(userId);
+          res.status(200).json({ success: true, transactions });
         } catch (error) {
-            next(error);
+          console.error("Error fetching transactions:", error);
+          next(error);
         }
-    };
+      };
 }
