@@ -91,7 +91,7 @@ export class ContributionServiceImpl implements ContributionService {
     return updatedContributionMember;
   }
 
-   async createContribution(data: CreateContributionDTO): Promise<Contribution> {
+   async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
        const isContributionExists = await db.contribution.findFirst({
         where: {
             name: data.name,
@@ -102,7 +102,7 @@ export class ContributionServiceImpl implements ContributionService {
        }
        const contributionRoom = await db.contribution.create({
          data: {
-              createdById: data.createdById,
+              createdById: id,
               name: data.name,
               amountPerUser: data.amountPerUser,
               cycle: data.cycle,
