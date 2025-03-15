@@ -4,6 +4,7 @@ import { ContributionServiceImpl } from "../service/implementation/contribution-
 import { PayContributionDTO } from "../dto/payContribution.dto";
 import { CreateContributionDTO } from "../dto/createContribution.dto";
 import { JoinContributionDTO } from "../dto/joinContribution.dto";
+import { CustomRequest } from "../Middleware/auth.middleware";
 
 
 export class ContributionController{
@@ -14,13 +15,14 @@ export class ContributionController{
      }
 
      public  createContribution = async(
-         req: Request,
+         req: CustomRequest,
          res: Response,
          next: NextFunction
        ): Promise<void> => {
          try{
+          const userId = req.userAuth || ""
           const contributionData = req.body as CreateContributionDTO
-          const newContribution = await this.contributionService.createContribution(contributionData)
+          const newContribution = await this.contributionService.createContribution(userId, contributionData)
           res.status(201).json(newContribution)
         }catch(error){
            next(error)
