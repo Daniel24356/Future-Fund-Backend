@@ -23,7 +23,7 @@ export class AuthServiceImp implements AuthService {
                 email: data.email
             },
         })
-
+         
         if (!isUserExist) {
             throw new CustomError(401, "Invalid password or email");
         }

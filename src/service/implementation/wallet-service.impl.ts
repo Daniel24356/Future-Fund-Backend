@@ -1,4 +1,4 @@
-import { DepositStatus, Transaction, TransactionType } from "@prisma/client";
+import { DepositStatus, PrismaClient, Transaction, TransactionType } from "@prisma/client";
 import { WalletService } from "../wallet.service";
 import { PaymentInitializationResponse, PaymentServiceImpl } from "../PaystackInitialization";
 import { db } from "../../configs/db";
