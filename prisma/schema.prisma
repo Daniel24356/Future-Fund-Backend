@@ -47,26 +47,31 @@ enum PaymentStatus {
   UNPAID
 }
 
+enum ContributionCycle {
+  WEEKLY
+  MONTHLY
+}
+
 model User {
-  id             String   @id @default(uuid())
-  firstName      String
-  lastName       String
-  email          String   @unique
-  password       String
-  balance        Float    @default(0.0)
-  role           UserRole @default(USER)
-  emailVerified  Boolean   @default(false)
-  otp            String?
-  otpExpiry      String?
-  phoneNumber    String?  @unique
-  profilePicture String?
-  transactions   Transaction[]
-  loans          Loan[]
-  investments    Investment[]
-  contributions  ContributionMember[]
-  passwordHistory PasswordHistory[] 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String               @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String               @unique
+  password        String
+  balance         Float                @default(0.0)
+  role            UserRole             @default(USER)
+  emailVerified   Boolean              @default(false)
+  otp             String?
+  otpExpiry       String?
+  phoneNumber     String?              @unique
+  profilePicture  String?
+  transactions    Transaction[]
+  loans           Loan[]
+  investments     Investment[]
+  contributions   ContributionMember[]
+  passwordHistory PasswordHistory[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   BillPayment BillPayment[]
 
@@ -74,77 +79,78 @@ model User {
 }
 
 model Transaction {
-  id            String         @id @default(uuid())
-  user          User           @relation(fields: [userId], references: [id])
-  userId        String
-  type          TransactionType
-  status        DepositStatus?
-  amount        Float
-  description   String?
-  createdAt     DateTime @default(now())
+  id          String          @id @default(uuid())
+  user        User            @relation(fields: [userId], references: [id])
+  userId      String
+  type        TransactionType
+  status      DepositStatus?
+  amount      Float
+  description String?
+  createdAt   DateTime        @default(now())
 }
 
 model Loan {
-  id              String     @id @default(uuid())
-  cursor Int @default(autoincrement()) @unique
-  user            User       @relation(fields: [userId], references: [id])
-  userId          String
-  autoPaymentEnabled Boolean @default(false) 
-  amount          Float
-  interestRate    Float
-  totalRepayable  Float
-  term            Int 
-  dueAmount       Float
-  status          LoanStatus @default(PENDING)
-  dueDate         DateTime?
-  paidAmount      Float      @default(0.0)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id                 String     @id @default(uuid())
+  cursor             Int        @unique @default(autoincrement())
+  user               User       @relation(fields: [userId], references: [id])
+  userId             String
+  autoPaymentEnabled Boolean    @default(false)
+  amount             Float
+  interestRate       Float
+  totalRepayable     Float
+  term               Int
+  dueAmount          Float
+  status             LoanStatus @default(PENDING)
+  dueDate            DateTime?
+  paidAmount         Float      @default(0.0)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 }
 
 model BillPayment {
-  id            String  @id @default(uuid())
-  user          User    @relation(fields: [userId], references: [id])
-  userId        String
-  service       String
-  amount        Float
-  referenceId   String  @unique
-  status        PaymentStatus @default(UNPAID)
-  createdAt     DateTime @default(now())
+  id          String        @id @default(uuid())
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  service     String
+  amount      Float
+  referenceId String        @unique
+  status      PaymentStatus @default(UNPAID)
+  createdAt   DateTime      @default(now())
 }
 
 model Investment {
-  id            String  @id @default(uuid())
-  user          User    @relation(fields: [userId], references: [id])
-  userId        String
-  plan          String
-  amount        Float
-  interestRate  Float
-  duration      Int     // In months
-  maturityDate  DateTime
-  status        PaymentStatus @default(UNPAID)
-  createdAt     DateTime @default(now())
+  id           String        @id @default(uuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  plan         String
+  amount       Float
+  interestRate Float
+  duration     Int // In months
+  maturityDate DateTime
+  status       PaymentStatus @default(UNPAID)
+  createdAt    DateTime      @default(now())
 }
 
 model Contribution {
-  id            String  @id @default(uuid())
+  id            String               @id @default(uuid())
   name          String
-  createdBy     User    @relation(fields: [createdById], references: [id])
-  createdById   String  
+  createdBy     User                 @relation(fields: [createdById], references: [id])
+  createdById   String
   members       ContributionMember[]
   amountPerUser Float
-  cycle         String
-  createdAt     DateTime @default(now())
+  cycle         ContributionCycle
+  maxMembers    Int
+  createdAt     DateTime             @default(now())
 }
 
 model ContributionMember {
-  id               String  @id @default(uuid())
-  user             User    @relation(fields: [userId], references: [id])
-  userId           String
-  contribution     Contribution @relation(fields: [contributionId], references: [id])
-  contributionId   String
-  status           PaymentStatus @default(UNPAID)
-  createdAt        DateTime @default(now())
+  id             String        @id @default(uuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  contribution   Contribution  @relation(fields: [contributionId], references: [id])
+  contributionId String
+  status         PaymentStatus @default(UNPAID)
+  createdAt      DateTime      @default(now())
 }
 
 model PasswordHistory {

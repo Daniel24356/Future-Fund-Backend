@@ -1,4 +1,4 @@
-import { DepositStatus, Transaction, TransactionType } from "@prisma/client";
+import { DepositStatus, PrismaClient, Transaction, TransactionType } from "@prisma/client";
 import { WalletService } from "../wallet.service";
 import { PaymentInitializationResponse, PaymentServiceImpl } from "../PaystackInitialization";
 import { db } from "../../configs/db";
@@ -7,6 +7,12 @@ import { TransferFundsDTO } from "../../dto/wallet.dto";
 
 const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{
+    
+    private paymentService: PaymentServiceImpl
+
+    constructor(){
+        this.paymentService = new PaymentServiceImpl()
+    }
 
    async getUserBalance(userId: string): Promise<number> {
         const user = await prisma.user.findUnique({ where: { id: userId } });

@@ -2,6 +2,7 @@ import {
   Contribution,
   ContributionMember,
   PaymentStatus,
+  PrismaClient,
 } from "@prisma/client";
 import { CreateContributionDTO } from "../../dto/createContribution.dto";
 import { JoinContributionDTO } from "../../dto/joinContribution.dto";
@@ -11,10 +12,23 @@ import { db } from "../../configs/db";
 import { CustomError } from "../../exceptions/error/customError.error";
 import { StatusCodes } from "http-status-codes";
 
+const prisma = new PrismaClient()
 export class ContributionServiceImpl implements ContributionService {
-  // getUserContributions(userId: string): Promise<ContributionMember[]> {
-  //   throw new Error("Method not implemented.");
-  // }
+ async getAllContributionMembers(contributionId: string): Promise<ContributionMember[]> {
+    const contribution= await db.contribution.findFirst({
+      where: {
+        id: contributionId
+      },
+      include: {
+        members: true
+      }
+    })
+    if(!contribution){
+      throw new CustomError(StatusCodes.NOT_FOUND, "Contribution room not found")
+    }
+    return contribution.members
+    
+  }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
     const { userId, contributionId, amount } = data;
@@ -77,7 +91,7 @@ export class ContributionServiceImpl implements ContributionService {
     return updatedContributionMember;
   }
 
-   async createContribution(data: CreateContributionDTO): Promise<Contribution> {
+   async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
        const isContributionExists = await db.contribution.findFirst({
         where: {
             name: data.name,
@@ -88,10 +102,11 @@ export class ContributionServiceImpl implements ContributionService {
        }
        const contributionRoom = await db.contribution.create({
          data: {
-              createdById: data.createdById,
+              createdById: id,
               name: data.name,
               amountPerUser: data.amountPerUser,
               cycle: data.cycle,
+              maxMembers: data.maxMembers
          }
        })
        return contributionRoom
