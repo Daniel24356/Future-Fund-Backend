@@ -106,7 +106,9 @@ export class ContributionServiceImpl implements ContributionService {
               name: data.name,
               amountPerUser: data.amountPerUser,
               cycle: data.cycle,
-              maxMembers: data.maxMembers
+              maxMembers: data.maxMembers,
+              trustPeriodActive: true, // First 3 months, no payouts
+              escrowBalance: 0,
          }
        })
        return contributionRoom
@@ -155,5 +157,153 @@ export class ContributionServiceImpl implements ContributionService {
     });
 
     return contributions;
+  }
+
+  async inviteUsersToContribution(contributionId: string, userIds: string[]): Promise<void> {
+    await Promise.all(userIds.map(async (userId) => {
+      await db.contributionInvitation.create({
+        data: { contributionId, userId, status: "PENDING" },
+      });
+    }));
+  }
+
+  async verifyIdentityAndJoin(userId: string, contributionId: string, verificationData: any): Promise<ContributionMember> {
+    const user = await db.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "User identity verification failed.");
+    }
+
+    const member = await db.contributionMember.create({
+      data: { userId, contributionId, status: PaymentStatus.UNPAID },
+    });
+
+    return member;
+  }
+
+  async agreeToPaymentTerms(userId: string, contributionId: string): Promise<void> {
+    await db.contributionMember.updateMany({
+      where: { userId, contributionId },
+      data: { agreedToTerms: true },
+    });
+  }
+
+   async assignContributionTurns(contributionId: string): Promise<void> {
+    const members = await db.contributionMember.findMany({
+      where: { contributionId },
+      orderBy: { joinedAt: "asc" },
+    });
+
+    if (!members.length) {
+      throw new Error("No members found for this contribution");
+    }
+
+    for (let i = 0; i < members.length; i++) {
+      await db.contributionMember.update({
+        where: { id: members[i].id },
+        data: { turnOrder: i + 1 },
+      });
+    }
+  }
+
+  async startContributionCycle(contributionId: string): Promise<void> {
+    const contribution = await db.contribution.findUnique({
+      where: { id: contributionId },
+      include: { members: true },
+    });
+
+    if (!contribution || contribution.members.length === 0) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "No active members to start cycle.");
+    }
+
+    await db.contribution.update({
+      where: { id: contributionId },
+      data: { cycleActive: true },
+    });
+  }
+
+  async holdFundsInEscrow(contributionId: string, amount: number): Promise<void> {
+    const contribution = await db.contribution.findUnique({ where: { id: contributionId } });
+    if (!contribution) throw new CustomError(StatusCodes.NOT_FOUND, "Contribution not found.");
+
+    await db.contribution.update({
+      where: { id: contributionId },
+      data: { escrowBalance: contribution.escrowBalance + amount },
+    });
+  }
+
+  async enforceTrustBuildingPeriod(contributionId: string): Promise<void> {
+    const contribution = await db.contribution.findUnique({ where: { id: contributionId } });
+    if (!contribution) throw new CustomError(StatusCodes.NOT_FOUND, "Contribution not found.");
+
+    if (contribution.trustPeriodActive) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "Payouts are not allowed during the trust period.");
+    }
+  }
+
+  async processPayouts(contributionId: string): Promise<void> {
+    const contribution = await db.contribution.findUnique({
+       where: { id: contributionId },
+       include: { members: true }, 
+      });
+    if (!contribution) throw new CustomError(StatusCodes.NOT_FOUND, "Contribution not found.");
+
+    if (contribution.trustPeriodActive) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "Payouts are not allowed during the first 3 months.");
+    }
+
+    // Determine next recipient
+    const nextPayer = await db.contributionMember.findFirst({
+      where: { contributionId, status: PaymentStatus.UNPAID },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (!nextPayer) return;
+
+    const payoutAmount = contribution.amountPerUser * contribution.members.length ;
+    await this.splitPayoutForSecurity(contributionId, payoutAmount);
+  } 
+
+  async splitPayoutForSecurity(contributionId: string, payoutAmount: number): Promise<void> {
+    const secureHold = payoutAmount * 0.5; // Hold back 50% for security
+    const releaseAmount = payoutAmount - secureHold;
+
+    // Simulate payout and holdback
+    await db.contribution.update({
+      where: { id: contributionId },
+      data: { escrowBalance: secureHold },
+    });
+  }
+
+  async penalizeLatePayers(contributionId: string): Promise<void> {
+    const overdueMembers = await db.contributionMember.findMany({
+      where: { contributionId, status: PaymentStatus.UNPAID, dueDate: { lt: new Date() } },
+    });
+
+    await Promise.all(overdueMembers.map(async (member) => {
+      await db.contributionMember.update({
+        where: { id: member.id },
+        data: { penaltyAmount: 100, status: PaymentStatus.LATE },
+      });
+    }));
+  }
+
+  async reassignForfeitedSpots(contributionId: string): Promise<void> {
+    const forfeitedMembers = await db.contributionMember.findMany({
+      where: { contributionId, status: PaymentStatus.LATE },
+    });
+
+    await Promise.all(forfeitedMembers.map(async (member) => {
+      await db.contributionMember.update({
+        where: { id: member.id },
+        data: { forfeited: true },
+      });
+    }));
+  }
+
+  async finalizeContributionCycle(contributionId: string): Promise<void> {
+    await db.contribution.update({
+      where: { id: contributionId },
+      data: { cycleActive: false },
+    });
   }
 }

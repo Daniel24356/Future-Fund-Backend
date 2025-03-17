@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "ContributionMember" ADD COLUMN     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "turnOrder" INTEGER;
