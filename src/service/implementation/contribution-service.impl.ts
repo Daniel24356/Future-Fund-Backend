@@ -18,7 +18,7 @@ export class ContributionServiceImpl implements ContributionService {
 
   async getAllContributionMembers(
     contributionId: string
-  ): Promise<{members: [ContributionMember[], User]}> {
+  ): Promise<ContributionMember[]> {
 
     if (!contributionId) {
       throw new CustomError(StatusCodes.BAD_REQUEST, "Invalid contribution ID");
@@ -40,8 +40,7 @@ export class ContributionServiceImpl implements ContributionService {
         "Contribution room not found"
       );
     }
-    return {
-      members: [contribution.members, contribution.createdBy]};
+    return contribution.members;
   }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {

@@ -8,5 +8,5 @@ export interface ContributionService {
   joinContribution(data: JoinContributionDTO): Promise<ContributionMember>;
   payContribution(data: PayContributionDTO): Promise<ContributionMember>;
   getUserContributions(userId: string): Promise<Contribution[]>;
-  getAllContributionMembers(contributionId: string): Promise<{members: [ContributionMember[], User]}>;
+  getAllContributionMembers(contributionId: string): Promise<ContributionMember[]>;
 }
