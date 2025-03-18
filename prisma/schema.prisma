@@ -40,16 +40,25 @@ enum LoanStatus {
 enum DepositStatus {
   PENDING
   COMPLETED
+  LATE
 }
 
 enum PaymentStatus {
   PAID
   UNPAID
+  LATE
 }
 
 enum ContributionCycle {
   WEEKLY
   MONTHLY
+  LATE
+}
+
+enum ContributionInvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 model User {
@@ -76,6 +85,8 @@ model User {
   BillPayment BillPayment[]
 
   Contribution Contribution[]
+
+  ContributionInvitation ContributionInvitation[]
 }
 
 model Transaction {
@@ -139,8 +150,13 @@ model Contribution {
   members       ContributionMember[]
   amountPerUser Float
   cycle         ContributionCycle
+  cycleActive    Boolean?
   maxMembers    Int
+  trustPeriodActive Boolean
+  escrowBalance Int
   createdAt     DateTime             @default(now())
+
+  ContributionInvitation ContributionInvitation[]
 }
 
 model ContributionMember {
@@ -149,8 +165,25 @@ model ContributionMember {
   userId         String
   contribution   Contribution  @relation(fields: [contributionId], references: [id])
   contributionId String
+  agreedToTerms  Boolean?
+  penaltyAmount  Int?
+  turnOrder      Int?
+  forfeited      Boolean?
   status         PaymentStatus @default(UNPAID)
+  joinedAt        DateTime      @default(now()) 
+  dueDate         DateTime      @default(now())
   createdAt      DateTime      @default(now())
+}
+
+model ContributionInvitation {
+  id              String                      @id @default(uuid())
+  contributionId  String
+  userId          String
+  status          ContributionInvitationStatus @default(PENDING)
+  createdAt       DateTime                     @default(now())
+
+  contribution    Contribution                 @relation(fields: [contributionId], references: [id])
+  user           User                          @relation(fields: [userId], references: [id])
 }
 
 model PasswordHistory {
