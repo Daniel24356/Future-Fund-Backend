@@ -153,14 +153,16 @@ export class AuthServiceImp implements AuthService {
 
 
     generateAcessToken(userId: string, name: string, role: string): string {
+      const expiresIn : any = process.env.JWT_ACCESS_EXPIRES_IN
         return jwt.sign({ id: userId, name: role }, process.env.JWT_SECRET || '', {
-            expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
+            expiresIn
         })
     }
 
     generateRefreshToken(userId: string, name: string, role: string): string {
+      const expiresIn : any = process.env.JWT_REFRESH_EXPIRES_IN
         return jwt.sign({ id: userId, name: role }, process.env.JWT_SECRET || '', {
-            expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+            expiresIn
         })
     }
 

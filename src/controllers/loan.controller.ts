@@ -58,7 +58,7 @@ export class LoanController{
               return;
           }
   
-          const repaymentResult = await this.loanService.repayLoan(req.body, userId);
+          const repaymentResult = await this.loanService.repayLoan(userId);
   
           res.status(200).json({
               message: "Loan repayment successful",
@@ -114,6 +114,20 @@ export class LoanController{
           next(error);
         }
       };
+
+      public  getUserActiveLoan = async(
+        req: CustomRequest,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> => {
+        try{
+         const userId = req.userAuth;
+         const result = await this.loanService.getUserActiveLoan(userId!);
+         res.status(StatusCodes.OK).send(result);
+       }catch(error){
+          next(error)
+        }
+      }
 
 }
 

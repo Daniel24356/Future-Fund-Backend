@@ -66,27 +66,23 @@ export class LoanServiceImpl implements LoanService{
         }
     }
 
-    async repayLoan(data: RepayLoanDTO, userId: string): Promise<Loan> {
-        const loan = await prisma.loan.findUnique({
-            where: { id: data.loanId, userId },
+    async repayLoan(userId: string): Promise<Loan> {
+        const loan = await prisma.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
         });
     
         if (!loan) {
             throw new Error("Loan not found or Unauthorized");
         }
     
-        if (loan.status !== "ACTIVE") {
-            throw new Error("LOAN IS NOT APPROVED YET");
-        }
-    
-        const newPaidAmount = loan.paidAmount + data.amount;
-        const newStatus = newPaidAmount >= loan.totalRepayable ? "PAID" : "ACTIVE";
-    
         const updatedLoan = await prisma.loan.update({
-            where: { id: data.loanId },
+            where: { id: loan.id },
             data: {
-                paidAmount: newPaidAmount,
-                status: newStatus,
+                paidAmount: loan.totalRepayable,
+                status: 'PAID',
             },
         });
     
@@ -94,8 +90,8 @@ export class LoanServiceImpl implements LoanService{
             data: {
                 userId,
                 type: "LOAN_REPAYMENT",
-                amount: data.amount,
-                description: `Repayment for loan ${data.loanId}`,
+                amount: loan.totalRepayable,
+                description: `Repayment for loan ${loan.id}`,
             },
         });
     
@@ -127,5 +123,16 @@ export class LoanServiceImpl implements LoanService{
             cursor: nextCursor,
             limit,
         };
+    }
+
+    async getUserActiveLoan(userId: string) {
+        const activeLoan = await db.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
+        });
+
+        return activeLoan;
     }
 }
