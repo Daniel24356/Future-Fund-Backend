@@ -13,7 +13,7 @@ export class LoanServiceImpl implements LoanService{
         const FIXED_TERM = 6;
         const CREDIT_DEDUCTION = 20;
     
-        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const user = await db.user.findUnique({ where: { id: userId } });
         if (!user) {
             throw new Error("User not found.");
         }
@@ -22,7 +22,7 @@ export class LoanServiceImpl implements LoanService{
             throw new Error("Insufficient credit score. You need at least 100 to apply for a loan.");
         }
     
-        const existingLoan = await prisma.loan.findFirst({
+        const existingLoan = await db.loan.findFirst({
             where: { userId, status: { not: "PAID" } },
         });
     
@@ -68,7 +68,7 @@ export class LoanServiceImpl implements LoanService{
             dueDate.setMonth(dueDate.getMonth() + 2);
         }
     
-        return await prisma.$transaction(async (tx) => {
+        return await db.$transaction(async (tx) => {
             await tx.user.update({
                 where: { id: userId },
                 data: { creditScore: user.creditScore - CREDIT_DEDUCTION },
@@ -102,7 +102,7 @@ export class LoanServiceImpl implements LoanService{
     }
 
     async repayLoan(userId: string): Promise<Loan> {
-        const loan = await prisma.loan.findFirst({
+        const loan = await db.loan.findFirst({
             where: {
                 userId,
                 status: 'ACTIVE',
@@ -113,7 +113,7 @@ export class LoanServiceImpl implements LoanService{
             throw new Error("Loan not found or Unauthorized");
         }
     
-        const updatedLoan = await prisma.loan.update({
+        const updatedLoan = await db.loan.update({
             where: { id: loan.id },
             data: {
                 paidAmount: loan.totalRepayable,
@@ -121,7 +121,7 @@ export class LoanServiceImpl implements LoanService{
             },
         });
     
-        await prisma.transaction.create({
+        await db.transaction.create({
             data: {
                 userId,
                 type: "LOAN_REPAYMENT",
@@ -159,11 +159,8 @@ export class LoanServiceImpl implements LoanService{
             limit,
         };
     }
-    
-}
 
-
-    async getUserActiveLoan(userId: string) {
+     async getUserActiveLoan(userId: string) {
         const activeLoan = await db.loan.findFirst({
             where: {
                 userId,
@@ -173,4 +170,9 @@ export class LoanServiceImpl implements LoanService{
 
         return activeLoan;
     }
+    
 }
+
+
+   
+

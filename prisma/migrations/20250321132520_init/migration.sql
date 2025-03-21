@@ -5,7 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "Loan" ADD COLUMN     "cursor" SERIAL NOT NULL;
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Loan_cursor_key" ON "Loan"("cursor");

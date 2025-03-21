@@ -5,6 +5,7 @@ import { CustomRequest } from "../Middleware/auth.middleware"; // Adjust path if
 import { uploadFileToCloudinary } from "../utils/CloudinaryUploader";
 import { StatusCodes } from "http-status-codes";
 import { PrismaClient } from "@prisma/client";
+import { validate } from "class-validator";
 
 export class LoanController{
 

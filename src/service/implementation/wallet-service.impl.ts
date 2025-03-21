@@ -4,7 +4,6 @@ import { PaymentInitializationResponse, PaymentServiceImpl } from "../PaystackIn
 import { db } from "../../configs/db";
 import { CustomError } from "../../exceptions/error/customError.error";
 import { TransferFundsDTO } from "../../dto/wallet.dto";
-import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{

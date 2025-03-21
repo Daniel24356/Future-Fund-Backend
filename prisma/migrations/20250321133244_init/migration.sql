@@ -5,4 +5,4 @@
 
 */
 -- AlterTable
-ALTER TABLE "Contribution" ADD COLUMN     "maxMembers" INTEGER NOT NULL;
+
