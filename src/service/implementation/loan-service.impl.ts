@@ -3,15 +3,9 @@ import { ApplyLoanDTO } from "../../dto/applyLoan.dto";
 import { RepayLoanDTO } from "../../dto/repayLoan.dto";
 import { GetUserLoanResponse, LoanService } from "../loan.service";
 import { db } from "../../configs/db";
-import { GetUserLoanDto } from "../../dto/getUserLoan.dto";
-import { LoanService } from "../loan.service";
+import { GetUserLoanDto } from "../../dto/getUserloan.dto";
 import { PrismaClient } from "@prisma/client";
 import { uploadFileToCloudinary } from "../../utils/CloudinaryUploader";
-
-
-
-
-const prisma = new PrismaClient();
 
 
 

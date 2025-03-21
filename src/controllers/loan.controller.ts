@@ -7,6 +7,7 @@ import { RepayLoanDTO } from "../dto/repayLoan.dto";
 import { validate } from "class-validator";
 import { CustomRequest } from "../Middleware/auth.middleware"; // Adjust path if needed
 import { uploadFileToCloudinary } from "../utils/CloudinaryUploader";
+import { StatusCodes } from "http-status-codes";
 
 
 
@@ -100,23 +101,7 @@ export class LoanController{
           next(error);
       }
   };
-    
   
-  
-    
-  
-
-       public updateLoanStatus = async(
-        req: Request,
-        res: Response,
-        next: NextFunction
-      ): Promise<void> => {
-        try{
-         
-       }catch(error){
-          next(error)
-        }
-      }
 
       public repayLoan = async (
         req: Request,

@@ -13,19 +13,19 @@ export class ContributionController{
         this.contributionService = new ContributionServiceImpl();
      }
 
-     public  createContribution = async(
-         req: Request,
-         res: Response,
-         next: NextFunction
-       ): Promise<void> => {
-         try{
-          const contributionData = req.body as CreateContributionDTO
-          const newContribution = await this.contributionService.createContribution(contributionData)
-          res.status(201).json(newContribution)
-        }catch(error){
-           next(error)
-         }
-       }
+    //  public  createContribution = async(
+    //      req: Request,
+    //      res: Response,
+    //      next: NextFunction
+    //    ): Promise<void> => {
+    //      try{
+    //       const contributionData = req.body as CreateContributionDTO
+    //       const newContribution = await this.contributionService.createContribution(contributionData)
+    //       res.status(201).json(newContribution)
+    //     }catch(error){
+    //        next(error)
+    //      }
+    //    }
 
        public  joinContribution = async(
         req: Request,

@@ -136,6 +136,7 @@ model Contribution {
   createdById   String  
   members       ContributionMember[]
   amountPerUser Float
+  maxMembers    Int
   cycle         String
   createdAt     DateTime @default(now())
 }

@@ -2,6 +2,7 @@ import {
   Contribution,
   ContributionMember,
   PaymentStatus,
+  PrismaClient,
 } from "@prisma/client";
 import { CreateContributionDTO } from "../../dto/createContribution.dto";
 import { JoinContributionDTO } from "../../dto/joinContribution.dto";
@@ -11,7 +12,23 @@ import { db } from "../../configs/db";
 import { CustomError } from "../../exceptions/error/customError.error";
 import { StatusCodes } from "http-status-codes";
 
+const prisma = new PrismaClient()
 export class ContributionServiceImpl implements ContributionService {
+ async getAllContributionMembers(contributionId: string): Promise<ContributionMember[]> {
+    const contribution= await db.contribution.findFirst({
+      where: {
+        id: contributionId
+      },
+      include: {
+        members: true
+      }
+    })
+    if(!contribution){
+      throw new CustomError(StatusCodes.NOT_FOUND, "Contribution room not found")
+    }
+    return contribution.members
+    
+  }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
     const { userId, contributionId, amount } = data;
@@ -40,49 +57,6 @@ export class ContributionServiceImpl implements ContributionService {
         "Contribution is already paid"
       );
     }
-  }
-
-   async createContribution(data: CreateContributionDTO): Promise<Contribution> {
-       const isContributionExists = await db.contribution.findFirst({
-        where: {
-            name: data.name,
-        }
-       })
-       if(isContributionExists){
-         throw new CustomError(StatusCodes.BAD_REQUEST, "Contribution Room already exists")
-       }
-       const contributionRoom = await db.contribution.create({
-         data: {
-              createdById: data.createdById,
-              name: data.name,
-              amountPerUser: data.amountPerUser,
-              cycle: data.cycle,
-         }
-       })
-       return contributionRoom
-    }
-
-
-
-    async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
-        const isMemberExists = await db.contributionMember.findFirst({
-            where: {
-              userId: data.userId,
-            }
-        })
-        if(isMemberExists){
-            throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
-        }
-
-        const newMember = await db.contributionMember.create({
-              data: {
-                userId: data.userId,
-                contributionId: data.contributionId
-              }
-        })
-        return newMember
-    }
-    
 
     const requiredAmount = contributionMember.contribution.amountPerUser;
     if (amount !== requiredAmount) {
@@ -116,6 +90,51 @@ export class ContributionServiceImpl implements ContributionService {
 
     return updatedContributionMember;
   }
+
+   async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
+       const isContributionExists = await db.contribution.findFirst({
+        where: {
+            name: data.name,
+        }
+       })
+       if(isContributionExists){
+         throw new CustomError(StatusCodes.BAD_REQUEST, "Contribution Room already exists")
+       }
+       const contributionRoom = await db.contribution.create({
+         data: {
+              createdById: id,
+              name: data.name,
+              amountPerUser: data.amountPerUser,
+              cycle: data.cycle,
+              maxMembers: data.maxMembers
+         }
+       })
+       return contributionRoom
+    }
+
+
+
+    async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
+        const isMemberExists = await db.contributionMember.findFirst({
+            where: {
+              userId: data.userId,
+            }
+        })
+        if(isMemberExists){
+            throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
+        }
+
+        const newMember = await db.contributionMember.create({
+              data: {
+                userId: data.userId,
+                contributionId: data.contributionId
+              }
+        })
+        return newMember
+    }
+    
+    
+
 
   async getUserContributions(userId: string): Promise<ContributionMember[]> {
     const isUser = await db.user.findFirst({
