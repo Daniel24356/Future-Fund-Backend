@@ -61,6 +61,12 @@ enum ContributionInvitationStatus {
   REJECTED
 }
 
+enum OtpStatus {
+  PENDING
+  USED
+  EXPIRED
+}
+
 model User {
   id              String               @id @default(uuid())
   firstName       String
@@ -87,6 +93,8 @@ model User {
   Contribution Contribution[]
 
   ContributionInvitation ContributionInvitation[]
+
+  OtpRequest OtpRequest[]
 }
 
 model Transaction {
@@ -192,4 +200,26 @@ model PasswordHistory {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   passwordHash String
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model OtpConfig {
+  id            String  @id @default(uuid())
+  applicationId String  @unique
+  messageId     String  @unique
+  createdAt     DateTime @default(now())
+}
+
+model OtpRequest {
+ id            String   @id @default(uuid())
+  userId        String   @unique
+  pinId         String
+  messageId     String   
+  applicationId String
+  otp           String?  // Storing OTP is optional, as Infobip doesn't provide it
+  status        String   @default("PENDING") // PENDING, VERIFIED, FAILED
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

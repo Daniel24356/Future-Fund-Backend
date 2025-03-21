@@ -32,7 +32,7 @@ export class AuthServiceImp implements AuthService {
         if (!isPasswordValid) {
             throw new CustomError(401, "invalid password or email");
         }
-
+        
         const fullname = isUserExist.firstName + " " + isUserExist.lastName
         const accessToken = this.generateAcessToken(isUserExist.id, fullname, isUserExist.role);
 
