@@ -12,8 +12,10 @@ import investmentRouter from "./Route/investmentRouter";
 import loanRouter from "./Route/loanRouter";
 import walletRouter from "./Route/walletRouter";
 import "./Jobs/LoanPayment.job"; 
+import epinsrouter from "./Route/transactionRoutes";
+import router from "./Route/paymentRoutes";
 
-dotenv.config();
+dotenv.config();          
 
 const portEnv = process.env.PORT;
 if(!portEnv){
@@ -40,9 +42,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-setupSwagger(app);
-
-// app.use("/api/v1/courses", courseRouter)
+// setupSwagger(app);
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/login", authRouter)
 app.use("/api/v1/otp", otpRouter)
@@ -51,6 +51,8 @@ app.use("/api/v1/contribution", contributionRouter)
 app.use("/api/v1/investment", investmentRouter)
 app.use("/api/v1/loan", loanRouter)
 app.use("/api/v1/wallet", walletRouter)
+app.use("/api/v1/transactions", epinsrouter);
+app.use("/api/v1", router)
 
 app.use(errorHandler)
 

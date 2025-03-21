@@ -37,6 +37,11 @@ enum LoanStatus {
   DEFAULTED
 }
 
+enum DepositStatus {
+  PENDING
+  COMPLETED
+}
+
 enum PaymentStatus {
   PAID
   UNPAID
@@ -74,6 +79,7 @@ model Transaction {
   user          User           @relation(fields: [userId], references: [id])
   userId        String
   type          TransactionType
+  status        DepositStatus?
   amount        Float
   description   String?
   createdAt     DateTime @default(now())
@@ -81,6 +87,7 @@ model Transaction {
 
 model Loan {
   id              String     @id @default(uuid())
+  cursor Int @default(autoincrement()) @unique
   user            User       @relation(fields: [userId], references: [id])
   userId          String
   autoPaymentEnabled Boolean @default(false) 
@@ -126,7 +133,7 @@ model Contribution {
   id            String  @id @default(uuid())
   name          String
   createdBy     User    @relation(fields: [createdById], references: [id])
-  createdById   String
+  createdById   String  
   members       ContributionMember[]
   amountPerUser Float
   cycle         String

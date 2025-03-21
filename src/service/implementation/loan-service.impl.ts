@@ -1,12 +1,17 @@
-import { Loan } from "@prisma/client";
+import { Loan, Prisma } from "@prisma/client";
 import { ApplyLoanDTO } from "../../dto/applyLoan.dto";
 import { RepayLoanDTO } from "../../dto/repayLoan.dto";
+import { GetUserLoanResponse, LoanService } from "../loan.service";
+import { db } from "../../configs/db";
+import { GetUserLoanDto } from "../../dto/getUserLoan.dto";
 import { LoanService } from "../loan.service";
 import { PrismaClient } from "@prisma/client";
 import { uploadFileToCloudinary } from "../../utils/CloudinaryUploader";
 
 
 
+
+const prisma = new PrismaClient();
 
 
 
@@ -141,9 +146,31 @@ export class LoanServiceImpl implements LoanService{
     
         return updatedLoan;
     }
-    
-    getUserLoans(userId: string): Promise<Loan[]> {
-        throw new Error("Method not implemented.");
+
+    async getUserLoans(userId: string, dto: GetUserLoanDto): Promise<GetUserLoanResponse> {
+        const limit = dto.limit ? parseInt(dto.limit) : 50;
+        let query: Prisma.LoanFindManyArgs = {
+            where: { userId },
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+        };
+
+        if (dto.cursor) {
+            query = {
+                ...query,
+                skip: 1,
+                cursor: { cursor: parseInt(dto.cursor) }
+            };
+        }
+
+        const loans = await db.loan.findMany(query);
+        const cursor = loans[limit - 1]?.cursor ?? null;
+
+        return {
+            loans,
+            cursor,
+            limit,
+        };
     }
     
 }
