@@ -1,13 +1,13 @@
-import { Contribution, ContributionMember } from "@prisma/client";
+import { Contribution, ContributionMember, User } from "@prisma/client";
 import { CreateContributionDTO } from "../dto/createContribution.dto";
 import { JoinContributionDTO } from "../dto/joinContribution.dto";
 import { PayContributionDTO } from "../dto/payContribution.dto";
 
 export interface ContributionService {
-  createContribution(id: string, data: CreateContributionDTO): Promise<Contribution>;
+  createContribution(userId: string, data: CreateContributionDTO): Promise<Contribution>;
   joinContribution(data: JoinContributionDTO): Promise<ContributionMember>;
   payContribution(data: PayContributionDTO): Promise<ContributionMember>;
-  getUserContributions(userId: string): Promise<ContributionMember[]>;
+  getUserContributions(userId: string): Promise<Contribution[]>;
   getAllContributionMembers(contributionId: string): Promise<ContributionMember[]>;
   inviteUsersToContribution(contributionId: string, userIds: string[]): Promise<void>;
   verifyIdentityAndJoin(userId: string, contributionId: string, verificationData: any): Promise<ContributionMember>;

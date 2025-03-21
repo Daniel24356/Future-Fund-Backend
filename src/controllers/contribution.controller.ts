@@ -21,9 +21,9 @@ export class ContributionController{
          next: NextFunction
        ): Promise<void> => {
          try{
+          const userId = req.userAuth || ""
           const contributionData = req.body as CreateContributionDTO
-          const userId = req.userAuth  || ""
-          const newContribution = await this.contributionService.createContribution(userId,contributionData)
+          const newContribution = await this.contributionService.createContribution(userId, contributionData)
           res.status(201).json(newContribution)
         }catch(error){
            next(error)
@@ -59,12 +59,12 @@ export class ContributionController{
       }
 
       public  getUserContributions = async(
-        req: Request,
+        req: CustomRequest,
         res: Response,
         next: NextFunction
       ): Promise<void> => {
         try{
-         const userId = req.params.id
+         const userId = req.userAuth || ""
          const contributions = await this.contributionService.getUserContributions(userId)
          res.status(200).json(contributions)
        }catch(error){
@@ -73,12 +73,12 @@ export class ContributionController{
       }
 
       public getAllContributionMembers = async (
-        req: Request,
+        req: CustomRequest,
         res: Response,
         next: NextFunction
       ): Promise <void> => {
         try{
-          const contributionId = req.params.id
+          const contributionId = req.params.contributionId
           const members = await this.contributionService.getAllContributionMembers(contributionId)
           res.status(200).json(members)
         }catch(error){

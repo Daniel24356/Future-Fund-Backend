@@ -3,6 +3,7 @@ import {
   ContributionMember,
   PaymentStatus,
   PrismaClient,
+  User,
 } from "@prisma/client";
 import { CreateContributionDTO } from "../../dto/createContribution.dto";
 import { JoinContributionDTO } from "../../dto/joinContribution.dto";
@@ -12,29 +13,41 @@ import { db } from "../../configs/db";
 import { CustomError } from "../../exceptions/error/customError.error";
 import { StatusCodes } from "http-status-codes";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 export class ContributionServiceImpl implements ContributionService {
- async getAllContributionMembers(contributionId: string): Promise<ContributionMember[]> {
-    const contribution= await db.contribution.findFirst({
+
+  async getAllContributionMembers(
+    contributionId: string
+  ): Promise<ContributionMember[]> {
+
+    if (!contributionId) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "Invalid contribution ID");
+    }
+
+    const contribution = await db.contribution.findUnique({
       where: {
-        id: contributionId
+        id: contributionId,
       },
       include: {
-        members: true
-      }
-    })
-    if(!contribution){
-      throw new CustomError(StatusCodes.NOT_FOUND, "Contribution room not found")
+        members: true,
+        createdBy: true
+      },
+    });
+   
+    if (!contribution) {
+      throw new CustomError(
+        StatusCodes.NOT_FOUND,
+        "Contribution room not found"
+      );
     }
-    return contribution.members
-    
+    return contribution.members;
   }
 
   async payContribution(data: PayContributionDTO): Promise<ContributionMember> {
     const { userId, contributionId, amount } = data;
 
-    const user = await db.user.findUnique({ 
-      where: { id: userId } 
+    const user = await db.user.findUnique({
+      where: { id: userId },
     });
     if (!user) {
       throw new CustomError(StatusCodes.NOT_FOUND, "User not found");
@@ -76,7 +89,7 @@ export class ContributionServiceImpl implements ContributionService {
     console.log(
       `Simulating payment of ${amount} for user ${userId} on contribution ${contributionId}`
     );
-    
+
     const [updatedUser, updatedContributionMember] = await db.$transaction([
       db.user.update({
         where: { id: userId },
@@ -114,31 +127,33 @@ export class ContributionServiceImpl implements ContributionService {
        return contributionRoom
     }
 
+ 
 
-
-    async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
-        const isMemberExists = await db.contributionMember.findFirst({
-            where: {
-              userId: data.userId,
-            }
-        })
-        if(isMemberExists){
-            throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
-        }
-
-        const newMember = await db.contributionMember.create({
-              data: {
-                userId: data.userId,
-                contributionId: data.contributionId
-              }
-        })
-        return newMember
+  async joinContribution(
+    data: JoinContributionDTO
+  ): Promise<ContributionMember> {
+    const isMemberExists = await db.contributionMember.findFirst({
+      where: {
+        userId: data.userId,
+      },
+    });
+    if (isMemberExists) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        "User is already a member of this contribution room"
+      );
     }
-    
-    
 
+    const newMember = await db.contributionMember.create({
+      data: {
+        userId: data.userId,
+        contributionId: data.contributionId,
+      },
+    });
+    return newMember;
+  }
 
-  async getUserContributions(userId: string): Promise<ContributionMember[]> {
+  async getUserContributions(userId: string): Promise<Contribution[]> {
     const isUser = await db.user.findFirst({
       where: {
         id: userId,
@@ -149,14 +164,25 @@ export class ContributionServiceImpl implements ContributionService {
       throw new CustomError(StatusCodes.BAD_REQUEST, "This user doesn't exist");
     }
 
-    const contributions = await db.contributionMember.findMany({
-      where: { userId },
-      include: {
-        contribution: true,
-      },
+    const createdContributions = await db.contribution.findMany({
+      where: { createdById: userId },
     });
 
-    return contributions;
+    const memberContributions = await db.contribution.findMany({
+      where: { members: { some: { userId } } },
+    });
+
+    const contributions = new Map<string, Contribution>()
+
+    createdContributions.forEach(contribution => {
+      contributions.set(contribution.id, contribution);
+    });
+
+    memberContributions.forEach(contribution => {
+      contributions.set(contribution.id, contribution);
+    });
+
+    return Array.from(contributions.values());
   }
 
   async inviteUsersToContribution(contributionId: string, userIds: string[]): Promise<void> {

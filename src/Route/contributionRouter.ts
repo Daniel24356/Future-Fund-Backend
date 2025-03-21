@@ -6,8 +6,8 @@ import { authenticateUser } from "../Middleware/auth.middleware";
 const contributioncontroller = new ContributionController();
 const contributionRouter = express.Router();
 
-contributionRouter.post("/", contributioncontroller.createContribution)
-contributionRouter.get("/getUserContribution/:userId", contributioncontroller.getUserContributions);
+contributionRouter.post("/", authenticateUser, contributioncontroller.createContribution)
+contributionRouter.get("/getUserContribution/:userId", authenticateUser, contributioncontroller.getUserContributions);
 contributionRouter.post("/joinContribution", contributioncontroller.joinContribution);
 contributionRouter.post("/payContribution", contributioncontroller.payContribution);
 contributionRouter.get("/members/:contributionId", contributioncontroller.getAllContributionMembers)
