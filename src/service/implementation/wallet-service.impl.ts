@@ -1,4 +1,4 @@
-import { DepositStatus, Transaction, TransactionType } from "@prisma/client";
+import { DepositStatus, PrismaClient, Transaction, TransactionType } from "@prisma/client";
 import { WalletService } from "../wallet.service";
 import { PaymentInitializationResponse, PaymentServiceImpl } from "../PaystackInitialization";
 import { db } from "../../configs/db";
@@ -8,6 +8,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{
+    
+    private paymentService: PaymentServiceImpl
+
+    constructor(){
+        this.paymentService = new PaymentServiceImpl()
+    }
 
    async getUserBalance(userId: string): Promise<number> {
         const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -17,28 +23,28 @@ export class WalletServiceImpl implements WalletService{
         return user.balance;
     }
 
-    async depositFunds(userId: string, amount: number, description?: string): Promise<{transaction: Transaction, paymentResponse: PaymentInitializationResponse}> {
-        const findUser = await db.user.findUnique({
-            where: {id: userId}
-        })
-        if(!findUser) {
-            throw new CustomError(404, "User not found");
-        }
-        const paymentResponse = await this.paymentService.initializePayment(
-            findUser.email,
-            amount,
-            { transactionType: TransactionType.DEPOSIT }
-        )
-        const transaction = await db.transaction.create({
-            data: {
-                userId: findUser.id,
-                type: TransactionType.DEPOSIT,
-                status: DepositStatus.PENDING,
-                amount,
-            }
-        })
-        return {transaction, paymentResponse};
-    }
+    // async depositFunds(userId: string, amount: number, description?: string): Promise<{transaction: Transaction, paymentResponse: PaymentInitializationResponse}> {
+    //     const findUser = await db.user.findUnique({
+    //         where: {id: userId}
+    //     })
+    //     if(!findUser) {
+    //         throw new CustomError(404, "User not found");
+    //     }
+    //     const paymentResponse = await this.paymentService.initializePayment(
+    //         findUser.email,
+    //         amount,
+    //         { transactionType: TransactionType.DEPOSIT }
+    //     )
+    //     const transaction = await db.transaction.create({
+    //         data: {
+    //             userId: findUser.id,
+    //             type: TransactionType.DEPOSIT,
+    //             status: DepositStatus.PENDING,
+    //             amount,
+    //         }
+    //     })
+    //     return {transaction, paymentResponse};
+    // }
 
     async withdrawFunds(userId: string, amount: number, description?: string): Promise<Transaction> {
         if (amount <= 0) {
@@ -60,7 +66,7 @@ export class WalletServiceImpl implements WalletService{
                 where: { id: userId },
                 data: { balance: { decrement: amount } },
             });
-
+             
             return await tx.transaction.create({
                 data: {
                     userId,

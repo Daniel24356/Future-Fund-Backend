@@ -7,5 +7,5 @@ export class GetUserLoanDto {
 
     @IsString()
     @IsOptional()
-    cursor?: string;
+    cursor?: string | null;
 }

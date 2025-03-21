@@ -11,7 +11,7 @@ import contributionRouter from "./Route/contributionRouter";
 import investmentRouter from "./Route/investmentRouter";
 import loanRouter from "./Route/loanRouter";
 import walletRouter from "./Route/walletRouter";
-import "./Jobs/LoanPayment.job"; 
+// import "./Jobs/LoanPayment.job"; 
 import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
 
@@ -42,7 +42,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-// setupSwagger(app);
+setupSwagger(app);
+
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/login", authRouter)
 app.use("/api/v1/otp", otpRouter)

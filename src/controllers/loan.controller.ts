@@ -1,15 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { BillPaymentServiceImpl } from "../service/implementation/billpayment-service.impl";
-import { ContributionServiceImpl } from "../service/implementation/contribution-service.impl";
 import { LoanServiceImpl } from "../service/implementation/loan-service.impl";
 import { ApplyLoanDTO } from "../dto/applyLoan.dto";
-import { RepayLoanDTO } from "../dto/repayLoan.dto";
-import { validate } from "class-validator";
 import { CustomRequest } from "../Middleware/auth.middleware"; // Adjust path if needed
 import { uploadFileToCloudinary } from "../utils/CloudinaryUploader";
 import { StatusCodes } from "http-status-codes";
-
-
+import { PrismaClient } from "@prisma/client";
 
 export class LoanController{
 
@@ -116,7 +111,7 @@ export class LoanController{
               return;
           }
   
-          const repaymentResult = await this.loanService.repayLoan(req.body, userId);
+          const repaymentResult = await this.loanService.repayLoan(userId);
   
           res.status(200).json({
               message: "Loan repayment successful",
@@ -172,6 +167,20 @@ export class LoanController{
           next(error);
         }
       };
+
+      public  getUserActiveLoan = async(
+        req: CustomRequest,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> => {
+        try{
+         const userId = req.userAuth;
+         const result = await this.loanService.getUserActiveLoan(userId!);
+         res.status(StatusCodes.OK).send(result);
+       }catch(error){
+          next(error)
+        }
+      }
 
 }
 

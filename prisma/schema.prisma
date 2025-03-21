@@ -40,11 +40,31 @@ enum LoanStatus {
 enum DepositStatus {
   PENDING
   COMPLETED
+  LATE
 }
 
 enum PaymentStatus {
   PAID
   UNPAID
+  LATE
+}
+
+enum ContributionCycle {
+  WEEKLY
+  MONTHLY
+  LATE
+}
+
+enum ContributionInvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum OtpStatus {
+  PENDING
+  USED
+  EXPIRED
 }
 
 model User {
@@ -72,17 +92,21 @@ model User {
   BillPayment BillPayment[]
 
   Contribution Contribution[]
+
+  ContributionInvitation ContributionInvitation[]
+
+  OtpRequest OtpRequest[]
 }
 
 model Transaction {
-  id            String         @id @default(uuid())
-  user          User           @relation(fields: [userId], references: [id])
-  userId        String
-  type          TransactionType
-  status        DepositStatus?
-  amount        Float
-  description   String?
-  createdAt     DateTime @default(now())
+  id          String          @id @default(uuid())
+  user        User            @relation(fields: [userId], references: [id])
+  userId      String
+  type        TransactionType
+  status      DepositStatus?
+  amount      Float
+  description String?
+  createdAt   DateTime        @default(now())
 }
 
 model Loan {
@@ -106,49 +130,74 @@ model Loan {
 }
 
 model BillPayment {
-  id            String  @id @default(uuid())
-  user          User    @relation(fields: [userId], references: [id])
-  userId        String
-  service       String
-  amount        Float
-  referenceId   String  @unique
-  status        PaymentStatus @default(UNPAID)
-  createdAt     DateTime @default(now())
+  id          String        @id @default(uuid())
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  service     String
+  amount      Float
+  referenceId String        @unique
+  status      PaymentStatus @default(UNPAID)
+  createdAt   DateTime      @default(now())
 }
 
 model Investment {
-  id            String  @id @default(uuid())
-  user          User    @relation(fields: [userId], references: [id])
-  userId        String
-  plan          String
-  amount        Float
-  interestRate  Float
-  duration      Int     // In months
-  maturityDate  DateTime
-  status        PaymentStatus @default(UNPAID)
-  createdAt     DateTime @default(now())
+  id           String        @id @default(uuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  plan         String
+  amount       Float
+  interestRate Float
+  duration     Int // In months
+  maturityDate DateTime
+  status       PaymentStatus @default(UNPAID)
+  createdAt    DateTime      @default(now())
 }
 
 model Contribution {
-  id            String  @id @default(uuid())
+  id            String               @id @default(uuid())
   name          String
-  createdBy     User    @relation(fields: [createdById], references: [id])
-  createdById   String  
+  createdBy     User                 @relation(fields: [createdById], references: [id])
+  createdById   String
   members       ContributionMember[]
   amountPerUser Float
   maxMembers    Int
   cycle         String
   createdAt     DateTime @default(now())
+  cycle         ContributionCycle
+  cycleActive    Boolean?
+  maxMembers    Int
+  trustPeriodActive Boolean
+  escrowBalance Int
+  createdAt     DateTime             @default(now())
+
+  ContributionInvitation ContributionInvitation[]
 }
 
 model ContributionMember {
-  id               String  @id @default(uuid())
-  user             User    @relation(fields: [userId], references: [id])
-  userId           String
-  contribution     Contribution @relation(fields: [contributionId], references: [id])
-  contributionId   String
-  status           PaymentStatus @default(UNPAID)
-  createdAt        DateTime @default(now())
+  id             String        @id @default(uuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  contribution   Contribution  @relation(fields: [contributionId], references: [id])
+  contributionId String
+  agreedToTerms  Boolean?
+  penaltyAmount  Int?
+  turnOrder      Int?
+  forfeited      Boolean?
+  status         PaymentStatus @default(UNPAID)
+  joinedAt        DateTime      @default(now()) 
+  dueDate         DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+}
+
+model ContributionInvitation {
+  id              String                      @id @default(uuid())
+  contributionId  String
+  userId          String
+  status          ContributionInvitationStatus @default(PENDING)
+  createdAt       DateTime                     @default(now())
+
+  contribution    Contribution                 @relation(fields: [contributionId], references: [id])
+  user           User                          @relation(fields: [userId], references: [id])
 }
 
 model PasswordHistory {
@@ -157,4 +206,26 @@ model PasswordHistory {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   passwordHash String
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model OtpConfig {
+  id            String  @id @default(uuid())
+  applicationId String  @unique
+  messageId     String  @unique
+  createdAt     DateTime @default(now())
+}
+
+model OtpRequest {
+ id            String   @id @default(uuid())
+  userId        String   @unique
+  pinId         String
+  messageId     String   
+  applicationId String
+  otp           String?  // Storing OTP is optional, as Infobip doesn't provide it
+  status        String   @default("PENDING") // PENDING, VERIFIED, FAILED
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

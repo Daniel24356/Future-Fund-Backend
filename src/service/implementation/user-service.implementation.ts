@@ -7,6 +7,7 @@ import { comparePassword, hostPassword } from "../../utils/password.utils";
 import { StatusCodes } from "http-status-codes";
 import { ChangePasswordDTO } from "../../dto/resetPassword.auth.dto";
 import ChangePassword from "../../Design/changeSucces";
+import InfobipService from "../infobob.service";
 
 export class UserServiceImpl implements UserService {
          
@@ -31,6 +32,42 @@ export class UserServiceImpl implements UserService {
                 balance: 0.0, // Default balance
             },
         });
+
+        if (!user.phoneNumber) {
+            throw new CustomError(400, "Phone number is required for OTP verification");
+        }
+
+    //     const otpConfig = await db.otpConfig.findFirst();
+    //     if (!otpConfig) {
+    //         throw new CustomError(500, "No Infobip Application ID found in the database");
+    //     }
+        
+    //     const applicationId = otpConfig.applicationId;
+    //     const messageId = otpConfig.messageId
+
+    //   const infobipService = new InfobipService();
+    //     // Request OTP from Infobip
+    //     const otpResponse =  await infobipService.sendPasscode(applicationId, messageId, user.phoneNumber);
+    
+    //     if ( !otpResponse.pinId) {
+    //         throw new CustomError(500, "Failed to generate OTP");
+    //     }
+        
+    //     const pinId = otpResponse.pinId;
+
+    //     // Store Infobip OTP request details
+    //     await db.otpRequest.create({
+    //         data: {
+    //             userId: user.id,
+    //             pinId: pinId,
+    //             messageId: messageId, // Store Infobip message ID
+    //             applicationId: applicationId, // Store Infobip app ID
+    //             otp: null, // Infobip does not send OTP, so we store null
+    //             status: "PENDING",
+    //             expiresAt: new Date(Date.now() + 10 * 60 * 1000), // Expires in 10 mins
+    //         },
+    //     });
+
         return user;
     }
     

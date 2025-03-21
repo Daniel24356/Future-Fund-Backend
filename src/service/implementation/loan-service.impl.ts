@@ -7,10 +7,6 @@ import { GetUserLoanDto } from "../../dto/getUserloan.dto";
 import { PrismaClient } from "@prisma/client";
 import { uploadFileToCloudinary } from "../../utils/CloudinaryUploader";
 
-
-
-const prisma = new PrismaClient();
-
 export class LoanServiceImpl implements LoanService{
     async applyForLoan(data: ApplyLoanDTO, userId: string, file?: Express.Multer.File): Promise<Loan> {
         const FIXED_INTEREST_RATE = 10;
@@ -105,27 +101,23 @@ export class LoanServiceImpl implements LoanService{
         throw new Error("Method not implemented.");
     }
 
-    async repayLoan(data: RepayLoanDTO, userId: string): Promise<Loan> {
-        const loan = await prisma.loan.findUnique({
-            where: { id: data.loanId, userId },
+    async repayLoan(userId: string): Promise<Loan> {
+        const loan = await prisma.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
         });
     
         if (!loan) {
             throw new Error("Loan not found or Unauthorized");
         }
     
-        if (loan.status !== "ACTIVE") {
-            throw new Error("LOAN IS NOT APPROVED YET");
-        }
-    
-        const newPaidAmount = loan.paidAmount + data.amount;
-        const newStatus = newPaidAmount >= loan.totalRepayable ? "PAID" : "ACTIVE";
-    
         const updatedLoan = await prisma.loan.update({
-            where: { id: data.loanId },
+            where: { id: loan.id },
             data: {
-                paidAmount: newPaidAmount,
-                status: newStatus,
+                paidAmount: loan.totalRepayable,
+                status: 'PAID',
             },
         });
     
@@ -133,8 +125,8 @@ export class LoanServiceImpl implements LoanService{
             data: {
                 userId,
                 type: "LOAN_REPAYMENT",
-                amount: data.amount,
-                description: `Repayment for loan ${data.loanId}`,
+                amount: loan.totalRepayable,
+                description: `Repayment for loan ${loan.id}`,
             },
         });
     
@@ -143,32 +135,42 @@ export class LoanServiceImpl implements LoanService{
 
     async getUserLoans(userId: string, dto: GetUserLoanDto): Promise<GetUserLoanResponse> {
         const limit = dto.limit ? parseInt(dto.limit) : 50;
+    
         let query: Prisma.LoanFindManyArgs = {
             where: { userId },
             take: limit,
             orderBy: { createdAt: 'desc' },
         };
-
+    
         if (dto.cursor) {
             query = {
                 ...query,
                 skip: 1,
-                cursor: { cursor: parseInt(dto.cursor) }
+                cursor: { id: dto.cursor } 
             };
         }
-
+    
         const loans = await db.loan.findMany(query);
-        const cursor = loans[limit - 1]?.cursor ?? null;
-
+        const nextCursor = loans.length === limit ? loans[loans.length - 1]?.id : null; 
+    
         return {
             loans,
-            cursor,
+            cursor: nextCursor,
             limit,
         };
     }
     
 }
 
-function uploadToCloudinary(path: string) {
-    throw new Error("Function not implemented.");
+
+    async getUserActiveLoan(userId: string) {
+        const activeLoan = await db.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
+        });
+
+        return activeLoan;
+    }
 }

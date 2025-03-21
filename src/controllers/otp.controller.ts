@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import InfobipService from '../service/infobob.service'; // Adjust the import if needed
+import { db } from '../configs/db';
+import { CustomError } from '../exceptions/error/customError.error';
 
 
 
@@ -15,7 +17,14 @@ class OtpController {
       const infobipService = new InfobipService();
       
       // Call the create2FAApplication method to create the 2FA app
-      await infobipService.create2FAApplication();
+      const applicationId =   await infobipService.create2FAApplication();
+
+       // Store applicationId in the database
+    //    await db.otpConfig.upsert({
+    //     where: { id: '1' }, // Assuming a single configuration row
+    //     update: { applicationId },
+    //     create: { applicationId, messageId: "" },
+    // });
 
       // If successful, send a success response
       res.status(200).json({
@@ -48,12 +57,20 @@ class OtpController {
       const infobipService = new InfobipService();
 
       // Call the createMessageTemplate method to create a message template
-      await infobipService.createMessageTemplate(appId, {
+      const messageId =  await infobipService.createMessageTemplate(appId, {
         pinType,
         messageText,
         pinLength,
         senderId,
       });
+
+
+    // Store messageId in the database
+    // await db.otpConfig.upsert({
+    //     where: { id: '1' }, // Assuming a single configuration row
+    //     update: { messageId },
+    //     create: { applicationId: appId, messageId },
+    // });
 
       res.status(200).json({
         error: false,
@@ -99,11 +116,35 @@ class OtpController {
     try {
       const { pinId, pinCode } = req.body;  // The pinId and pinCode from the request body
 
+      if (!pinId || !pinCode) {
+        throw new CustomError(400, "pinId and pinCode are required");
+    }
+
+    const otpRequest = await db.otpRequest.findFirst({
+      where: { messageId: pinId, status: "PENDING" },
+      include: { user: true }, // Include user details
+  });
+
+  if (!otpRequest) {
+      throw new CustomError(404, "OTP request not found or already verified");
+  }
+
       // Create an instance of InfobipService
       const infobipService = new InfobipService();
 
       // Call verifyPin to verify the OTP
       await infobipService.verifyPin(pinId, pinCode);
+
+      await db.otpRequest.update({
+        where: { id: otpRequest.id },
+        data: { status: "VERIFIED" },
+    });
+
+    // Update user record to mark email as verified
+    await db.user.update({
+        where: { id: otpRequest.userId },
+        data: { emailVerified: true },
+    });
 
       // If successful, send a success response
       res.status(200).json({
