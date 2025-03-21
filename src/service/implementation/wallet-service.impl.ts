@@ -7,6 +7,12 @@ import { TransferFundsDTO } from "../../dto/wallet.dto";
 
 const prisma = new PrismaClient()
 export class WalletServiceImpl implements WalletService{
+    
+    private paymentService: PaymentServiceImpl
+
+    constructor(){
+        this.paymentService = new PaymentServiceImpl()
+    }
 
    async getUserBalance(userId: string): Promise<number> {
         const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -59,7 +65,7 @@ export class WalletServiceImpl implements WalletService{
                 where: { id: userId },
                 data: { balance: { decrement: amount } },
             });
-
+             
             return await tx.transaction.create({
                 data: {
                     userId,

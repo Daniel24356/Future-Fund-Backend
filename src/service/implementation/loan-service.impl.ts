@@ -29,7 +29,7 @@ export class LoanServiceImpl implements LoanService{
             dueDate.setMonth(dueDate.getMonth() + 3);
         }
 
-        return await prisma.loan.create({
+        const loan = await prisma.loan.create({
             data: {
                 userId,
                 amount: data.amount,
@@ -42,6 +42,7 @@ export class LoanServiceImpl implements LoanService{
                 status: "PENDING",
             },
         });
+        return loan;
 
     }
     async updateLoanStatus(loanId: string, newStatus: "APPROVED" | "REJECTED"): Promise<Loan | null> {

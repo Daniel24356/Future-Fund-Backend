@@ -1,13 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { BillPaymentServiceImpl } from "../service/implementation/billpayment-service.impl";
-import { ContributionServiceImpl } from "../service/implementation/contribution-service.impl";
 import { LoanServiceImpl } from "../service/implementation/loan-service.impl";
 import { ApplyLoanDTO } from "../dto/applyLoan.dto";
-import { RepayLoanDTO } from "../dto/repayLoan.dto";
-import { validate } from "class-validator";
 import { CustomRequest } from "../Middleware/auth.middleware"; // Adjust path if needed
 import { StatusCodes } from "http-status-codes";
-import { Loan } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
