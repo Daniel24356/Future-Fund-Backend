@@ -5,89 +5,119 @@ import { GetUserLoanResponse, LoanService } from "../loan.service";
 import { db } from "../../configs/db";
 import { GetUserLoanDto } from "../../dto/getUserloan.dto";
 import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { uploadFileToCloudinary } from "../../utils/CloudinaryUploader";
 
 export class LoanServiceImpl implements LoanService{
-    async applyForLoan(data: ApplyLoanDTO, userId: string): Promise<Loan> {
+    async applyForLoan(data: ApplyLoanDTO, userId: string, file?: Express.Multer.File): Promise<Loan> {
         const FIXED_INTEREST_RATE = 10;
         const FIXED_TERM = 6;
-
-        const interest = (data.amount * FIXED_INTEREST_RATE) / 100;
-        const totalRepayable = data.amount + interest;
-
-        const dueAmount = totalRepayable / FIXED_TERM;
-
-        const dueDate = new Date();
-        if (data.amount <= 100000){
-            dueDate.setDate(dueDate.getDate() + 14);
-        }else if (data.amount <= 500000){
-            dueDate.setMonth(dueDate.getMonth() + 1);
-        }else if (data.amount <= 2000000){
-            dueDate.setMonth(dueDate.getMonth() + 2);
-        }else {
-            dueDate.setMonth(dueDate.getMonth() + 3);
+        const CREDIT_DEDUCTION = 20;
+    
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error("User not found.");
         }
-
-        const loan = await prisma.loan.create({
-            data: {
-                userId,
-                amount: data.amount,
-                term: FIXED_TERM,
-                interestRate: FIXED_INTEREST_RATE,
-                totalRepayable,
-                dueAmount, 
-                dueDate, 
-                paidAmount: 0,
-                status: "PENDING",
-            },
+    
+        if (user.creditScore < 100) {
+            throw new Error("Insufficient credit score. You need at least 100 to apply for a loan.");
+        }
+    
+        const existingLoan = await prisma.loan.findFirst({
+            where: { userId, status: { not: "PAID" } },
         });
-        return loan;
-
-    }
-    async updateLoanStatus(loanId: string, newStatus: "APPROVED" | "REJECTED"): Promise<Loan | null> {
-        try {
-           
-            const loan = await prisma.loan.findUnique({ where: { id: loanId } });
-
-            if (!loan) {
-                throw new Error("Loan not found");
-            }
-
-            
-            const updatedLoan = await prisma.loan.update({
-                where: { id: loanId },
-                data: { status: newStatus }
-            });
-
-            return updatedLoan;
-        } catch (error) {
-            console.error("Error updating loan status:", error);
-            throw new Error("Failed to update loan status");
+    
+        if (existingLoan) {
+            throw new Error("You must fully repay your current loan before applying again.");
         }
+    
+        const loanAmount = Number(data.amount);
+        if (isNaN(loanAmount) || loanAmount <= 0) {
+            throw new Error("Invalid loan amount.");
+        }
+    
+        if (loanAmount > 10000) {
+            throw new Error("Loan amount exceeds the maximum limit of $10,000.");
+        }
+    
+        let accountStatementUrl: string | undefined;
+    
+       
+        if (file) {
+            try {
+                const uploadResponse = await uploadFileToCloudinary(file.buffer, "account_statements");
+                accountStatementUrl = uploadResponse.secure_url;
+            } catch (error) {
+                throw new Error("File upload failed. Please try again.");
+            }
+        } else if (data.accountStatement) {
+            accountStatementUrl = data.accountStatement;
+        } else {
+            throw new Error("Account statement file is required.");
+        }
+    
+        const interest = (loanAmount * FIXED_INTEREST_RATE) / 100;
+        const totalRepayable = loanAmount + interest;
+        const dueAmount = totalRepayable / FIXED_TERM;
+    
+        const dueDate = new Date();
+        if (loanAmount <= 1000) {
+            dueDate.setDate(dueDate.getDate() + 14);
+        } else if (loanAmount <= 5000) {
+            dueDate.setMonth(dueDate.getMonth() + 1);
+        } else {
+            dueDate.setMonth(dueDate.getMonth() + 2);
+        }
+    
+        return await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: { id: userId },
+                data: { creditScore: user.creditScore - CREDIT_DEDUCTION },
+            });
+    
+            return await tx.loan.create({
+                data: {
+                    userId,
+                    amount: loanAmount,
+                    term: FIXED_TERM,
+                    interestRate: FIXED_INTEREST_RATE,
+                    totalRepayable,
+                    dueAmount,
+                    dueDate,
+                    paidAmount: 0,
+                    status: "PENDING",
+                    accountStatement: accountStatementUrl,
+                    homeAddress: data.homeAddress,
+                },
+            });
+        });
     }
 
-    async repayLoan(data: RepayLoanDTO, userId: string): Promise<Loan> {
-        const loan = await prisma.loan.findUnique({
-            where: { id: data.loanId, userId },
+      
+
+
+
+    
+    updateLoanStatus(loanId: string, status: "APPROVED" | "REJECTED"): Promise<Loan> {
+        throw new Error("Method not implemented.");
+    }
+
+    async repayLoan(userId: string): Promise<Loan> {
+        const loan = await prisma.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
         });
     
         if (!loan) {
             throw new Error("Loan not found or Unauthorized");
         }
     
-        if (loan.status !== "ACTIVE") {
-            throw new Error("LOAN IS NOT APPROVED YET");
-        }
-    
-        const newPaidAmount = loan.paidAmount + data.amount;
-        const newStatus = newPaidAmount >= loan.totalRepayable ? "PAID" : "ACTIVE";
-    
         const updatedLoan = await prisma.loan.update({
-            where: { id: data.loanId },
+            where: { id: loan.id },
             data: {
-                paidAmount: newPaidAmount,
-                status: newStatus,
+                paidAmount: loan.totalRepayable,
+                status: 'PAID',
             },
         });
     
@@ -95,8 +125,8 @@ export class LoanServiceImpl implements LoanService{
             data: {
                 userId,
                 type: "LOAN_REPAYMENT",
-                amount: data.amount,
-                description: `Repayment for loan ${data.loanId}`,
+                amount: loan.totalRepayable,
+                description: `Repayment for loan ${loan.id}`,
             },
         });
     
@@ -128,5 +158,19 @@ export class LoanServiceImpl implements LoanService{
             cursor: nextCursor,
             limit,
         };
+    }
+    
+}
+
+
+    async getUserActiveLoan(userId: string) {
+        const activeLoan = await db.loan.findFirst({
+            where: {
+                userId,
+                status: 'ACTIVE',
+            },
+        });
+
+        return activeLoan;
     }
 }

@@ -11,7 +11,7 @@ import contributionRouter from "./Route/contributionRouter";
 import investmentRouter from "./Route/investmentRouter";
 import loanRouter from "./Route/loanRouter";
 import walletRouter from "./Route/walletRouter";
-import "./Jobs/LoanPayment.job"; 
+// import "./Jobs/LoanPayment.job"; 
 import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
 

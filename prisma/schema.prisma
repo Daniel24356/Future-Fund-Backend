@@ -68,25 +68,26 @@ enum OtpStatus {
 }
 
 model User {
-  id              String               @id @default(uuid())
-  firstName       String
-  lastName        String
-  email           String               @unique
-  password        String
-  balance         Float                @default(0.0)
-  role            UserRole             @default(USER)
-  emailVerified   Boolean              @default(false)
-  otp             String?
-  otpExpiry       String?
-  phoneNumber     String?              @unique
-  profilePicture  String?
-  transactions    Transaction[]
-  loans           Loan[]
-  investments     Investment[]
-  contributions   ContributionMember[]
-  passwordHistory PasswordHistory[]
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  id             String   @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String   @unique
+  password       String
+  creditScore     Int     @default(200)
+  balance        Float    @default(0.0)
+  role           UserRole @default(USER)
+  emailVerified  Boolean   @default(false)
+  otp            String?
+  otpExpiry      String?
+  phoneNumber    String?  @unique
+  profilePicture String?
+  transactions   Transaction[]
+  loans          Loan[]
+  investments    Investment[]
+  contributions  ContributionMember[]
+  passwordHistory PasswordHistory[] 
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   BillPayment BillPayment[]
 
@@ -109,21 +110,23 @@ model Transaction {
 }
 
 model Loan {
-  id                 String     @id @default(uuid())
-  cursor             Int        @unique @default(autoincrement())
-  user               User       @relation(fields: [userId], references: [id])
-  userId             String
-  autoPaymentEnabled Boolean    @default(false)
-  amount             Float
-  interestRate       Float
-  totalRepayable     Float
-  term               Int
-  dueAmount          Float
-  status             LoanStatus @default(PENDING)
-  dueDate            DateTime?
-  paidAmount         Float      @default(0.0)
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  id              String     @id @default(uuid())
+  cursor Int @default(autoincrement()) @unique
+  user            User       @relation(fields: [userId], references: [id])
+  userId          String
+  autoPaymentEnabled Boolean @default(false) 
+  amount          Float
+  interestRate    Float
+  totalRepayable  Float
+  term            Int 
+  accountStatement String?
+  homeAddress     String?
+  dueAmount       Float
+  status          LoanStatus @default(PENDING)
+  dueDate         DateTime?
+  paidAmount      Float      @default(0.0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 }
 
 model BillPayment {
@@ -157,6 +160,9 @@ model Contribution {
   createdById   String
   members       ContributionMember[]
   amountPerUser Float
+  maxMembers    Int
+  cycle         String
+  createdAt     DateTime @default(now())
   cycle         ContributionCycle
   cycleActive    Boolean?
   maxMembers    Int
