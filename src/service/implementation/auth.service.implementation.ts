@@ -10,10 +10,6 @@ import { StatusCodes } from "http-status-codes";
 import { CreateUserDTO } from "../../dto/createUser.dto";
 import { generateOtp } from "../../utils/otp.util";
 import { sendOtpEmail, welcomeEmail } from "../../Design/Email";
-import  twilio  from "twilio";
-import { VerifyOtpDTO } from "../../dto/verifyOtp.dto";
-import InfobipService  from '../infobob.service'; 
-
 
 export class AuthServiceImp implements AuthService {
     async login(data: loginDTO): Promise<{ accessToken: string; refreshToken: string; }> {
@@ -32,7 +28,7 @@ export class AuthServiceImp implements AuthService {
         if (!isPasswordValid) {
             throw new CustomError(401, "invalid password or email");
         }
-
+        
         const fullname = isUserExist.firstName + " " + isUserExist.lastName
         const accessToken = this.generateAcessToken(isUserExist.id, fullname, isUserExist.role);
 
@@ -153,14 +149,16 @@ export class AuthServiceImp implements AuthService {
 
 
     generateAcessToken(userId: string, name: string, role: string): string {
+     const expiresIn: any = process.env.JWT_ACCESS_EXPIRES_IN || '7d'
         return jwt.sign({ id: userId, name: role }, process.env.JWT_SECRET || '', {
-            expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
+            expiresIn
         })
     }
 
     generateRefreshToken(userId: string, name: string, role: string): string {
+      const expiresIn: any = process.env.JWT_REFRESH_EXPIRES_IN || '1d'
         return jwt.sign({ id: userId, name: role }, process.env.JWT_SECRET || '', {
-            expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+            expiresIn
         })
     }
 

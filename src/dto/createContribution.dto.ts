@@ -1,5 +1,5 @@
 import { ContributionCycle } from "@prisma/client";
-import { IsNotEmpty, IsUUID, IsNumber, Min, Length, IsEnum } from "class-validator";
+import { IsNotEmpty, IsNumber, Min, Length, IsEnum } from "class-validator";
 
 export class CreateContributionDTO {
 
