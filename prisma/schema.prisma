@@ -48,6 +48,7 @@ model User {
   lastName       String
   email          String   @unique
   password       String
+  creditScore     Int     @default(200)
   balance        Float    @default(0.0)
   role           UserRole @default(USER)
   emailVerified  Boolean   @default(false)
@@ -87,6 +88,8 @@ model Loan {
   interestRate    Float
   totalRepayable  Float
   term            Int 
+  accountStatement String?
+  homeAddress     String?
   dueAmount       Float
   status          LoanStatus @default(PENDING)
   dueDate         DateTime?
