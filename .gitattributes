@@ -1,1 +1,4 @@
-prisma/migrations/*.sql text eol=lf
+
+# Prevents Git from modifying Prisma migration files
+prisma/migrations/* linguist-generated
+prisma/migrations/**/migration.sql -text eol=lf

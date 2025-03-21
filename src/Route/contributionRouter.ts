@@ -22,4 +22,5 @@ contributionRouter.post("/penalize", authenticateUser, contributioncontroller.pe
 contributionRouter.post("/reassign", authenticateUser, contributioncontroller.reassignForfeitedSpots);
 contributionRouter.post("/finalize", authenticateUser, contributioncontroller.finalizeContributionCycle);
 
+
 export default contributionRouter;
