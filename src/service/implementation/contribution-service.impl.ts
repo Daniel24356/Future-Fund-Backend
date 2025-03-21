@@ -106,7 +106,7 @@ export class ContributionServiceImpl implements ContributionService {
               name: data.name,
               amountPerUser: data.amountPerUser,
               cycle: data.cycle,
-              maxMembers: data.maxMembers
+              // maxMembers: data.maxMembers
          }
        })
        return contributionRoom
