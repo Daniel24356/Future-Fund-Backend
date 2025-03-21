@@ -104,20 +104,6 @@ export class ContributionServiceImpl implements ContributionService {
     return updatedContributionMember;
   }
 
-<<<<<<< HEAD
-  async createContribution(
-    userId: string,
-    data: CreateContributionDTO
-  ): Promise<Contribution> {
-    const isUser = await db.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!isUser) {
-      throw new CustomError(StatusCodes.NOT_FOUND, "User not found");
-=======
    async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
        const isContributionExists = await db.contribution.findFirst({
         where: {
@@ -139,31 +125,9 @@ export class ContributionServiceImpl implements ContributionService {
          }
        })
        return contributionRoom
->>>>>>> 93b1624e8b0d46f31c20878aecc49cd2acd0e95d
     }
 
-    const isContributionExists = await db.contribution.findFirst({
-      where: {
-        name: data.name,
-      },
-    });
-    if (isContributionExists) {
-      throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        "Contribution Room already exists"
-      );
-    }
-    const contributionRoom = await db.contribution.create({
-      data: {
-        createdById: userId,
-        name: data.name,
-        amountPerUser: data.amountPerUser,
-        cycle: data.cycle,
-        maxMembers: data.maxMembers,
-      },
-    });
-    return contributionRoom;
-  }
+ 
 
   async joinContribution(
     data: JoinContributionDTO

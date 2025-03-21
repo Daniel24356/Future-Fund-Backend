@@ -119,5 +119,16 @@
     "balance": 3500.0,
     "createdAt": "2025-03-04T12:50:00Z",
     "updatedAt": "2025-03-04T12:50:00Z"
+  },
+  {
+    "firstName": "Korede",
+    "lastName": "Anunusor",
+    "email": "koredeanunusor@gmail.com",
+    "password": "ILoveKorede",
+    "role": "ADMIN",
+    "phoneNumber": "08080975645",
+    "balance": 350000,
+    "createdAt": "2025-03-04T12:55:00Z",  
+    "updatedAt": "2025-03-04T12:55:00Z"
   }
 ]
