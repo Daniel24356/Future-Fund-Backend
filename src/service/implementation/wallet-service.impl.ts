@@ -65,7 +65,7 @@ export class WalletServiceImpl implements WalletService{
                 where: { id: userId },
                 data: { balance: { decrement: amount } },
             });
-
+             
             return await tx.transaction.create({
                 data: {
                     userId,
