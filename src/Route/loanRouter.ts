@@ -9,5 +9,6 @@ loanRouter.post("/", authenticateUser, loancontroller.applyForLoan);
 loanRouter.get("/getUserloans", authenticateUser, loancontroller.getUserLoans);
 loanRouter.post("/repayloan", authenticateUser, loancontroller.repayLoan);
 loanRouter.post("/updateloanStatus", authenticateUser, loancontroller.updateLoanStatus);
+loanRouter.get('/getUserActiveLoan', authenticateUser, loancontroller.getUserActiveLoan);
 
 export default loanRouter;
