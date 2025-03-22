@@ -1,5 +1,7 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import dotenv from "dotenv";
+import { CustomError } from "../exceptions/error/customError.error";
+import { StatusCodes } from "http-status-codes";
 
 dotenv.config();
 
@@ -19,25 +21,17 @@ const epinsApi = axios.create({
  * Buy Airtime
  */
 export const buyAirtime = async (network: string, phone: number, amount: number, ref: string) => {
+  const urlParams = `network=${network}&phone=${phone}&amount=${amount}&ref=${ref}`
   try {
-    const response = await epinsApi.post("/airtime", {
-      apiKey: EPINS_API_KEY,
-      network,
-      phone,
-      amount,
-      ref,
-    });
-    console.log({ apiKey: EPINS_API_KEY,
-      network,
-      phone,
-      amount,
-      ref,})
-    return response.data;
+    const response = await epinsApi.get(`/airtime?${urlParams}`);
+    console.log(response.data);
+    const result: { code: number; description: { response_description: string; } } = response.data;
+    if (result.code !== 101) throw new CustomError(StatusCodes.BAD_REQUEST, result.description.response_description);
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.description?.response_description || "Transaction failed");
-      }
-      throw new Error("An unexpected error occurred");
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.description?.response_description || "Transaction failed");
+    }
+    throw new Error("An unexpected error occurred");
   }
 };
 
