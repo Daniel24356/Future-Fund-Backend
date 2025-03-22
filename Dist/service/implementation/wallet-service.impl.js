@@ -28,26 +28,28 @@ class WalletServiceImpl {
             return user.balance;
         });
     }
-    depositFunds(userId, amount, description) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const findUser = yield db_1.db.user.findUnique({
-                where: { id: userId }
-            });
-            if (!findUser) {
-                throw new customError_error_1.CustomError(404, "User not found");
-            }
-            const paymentResponse = yield this.paymentService.initializePayment(findUser.email, amount, { transactionType: client_1.TransactionType.DEPOSIT });
-            const transaction = yield db_1.db.transaction.create({
-                data: {
-                    userId: findUser.id,
-                    type: client_1.TransactionType.DEPOSIT,
-                    status: client_1.DepositStatus.PENDING,
-                    amount,
-                }
-            });
-            return { transaction, paymentResponse };
-        });
-    }
+    // async depositFunds(userId: string, amount: number, description?: string): Promise<{transaction: Transaction, paymentResponse: PaymentInitializationResponse}> {
+    //     const findUser = await db.user.findUnique({
+    //         where: {id: userId}
+    //     })
+    //     if(!findUser) {
+    //         throw new CustomError(404, "User not found");
+    //     }
+    //     const paymentResponse = await this.paymentService.initializePayment(
+    //         findUser.email,
+    //         amount,
+    //         { transactionType: TransactionType.DEPOSIT }
+    //     )
+    //     const transaction = await db.transaction.create({
+    //         data: {
+    //             userId: findUser.id,
+    //             type: TransactionType.DEPOSIT,
+    //             status: DepositStatus.PENDING,
+    //             amount,
+    //         }
+    //     })
+    //     return {transaction, paymentResponse};
+    // }
     withdrawFunds(userId, amount, description) {
         return __awaiter(this, void 0, void 0, function* () {
             if (amount <= 0) {

@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const user_controller_1 = require("../controllers/user.controller");
 const auth_middleware_1 = require("../Middleware/auth.middleware");
 const isAdmin_middleware_1 = require("../Middleware/isAdmin.middleware");
-const cloudinary_config_1 = require("../configs/cloudinary.config");
+const CloudinaryUploader_1 = require("../utils/CloudinaryUploader"); // ✅ Correct
 const userController = new user_controller_1.UserController();
 const userRouter = express_1.default.Router();
 /**
@@ -159,7 +159,7 @@ userRouter.get("/auth/profile", auth_middleware_1.authenticateUser, userControll
  *       401:
  *         description: Unauthorized
  */
-userRouter.put("/profile-pic", auth_middleware_1.authenticateUser, cloudinary_config_1.uploadToCloudinaryProfileImage, userController.updateProfilePic);
+userRouter.put("/profile-pic", auth_middleware_1.authenticateUser, CloudinaryUploader_1.uploadToCloudinaryProfileImage, userController.updateProfilePic);
 /**
  * @swagger
  * /users/change-password:

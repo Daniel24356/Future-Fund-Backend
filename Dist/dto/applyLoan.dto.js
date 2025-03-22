@@ -17,16 +17,26 @@ exports.ApplyLoanDTO = ApplyLoanDTO;
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(1000),
+    (0, class_validator_1.Min)(1000, { message: "Loan amount must be at least 1,000." }),
     __metadata("design:type", Number)
 ], ApplyLoanDTO.prototype, "amount", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], ApplyLoanDTO.prototype, "dueAmount", void 0);
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ApplyLoanDTO.prototype, "homeAddress", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_validator_1.IsEnum)(["Employed", "Self-employed", "Business owner", "Student"], { message: "Invalid employment status." }),
     __metadata("design:type", String)
-], ApplyLoanDTO.prototype, "dueDate", void 0);
+], ApplyLoanDTO.prototype, "employmentStatus", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsEnum)(["Married", "Single", "Divorced", "Student"], { message: "Invalid marital status." }),
+    __metadata("design:type", String)
+], ApplyLoanDTO.prototype, "maritalStatus", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: "Account statement is required." }),
+    (0, class_validator_1.IsString)({ message: "Account statement must be a string (URL)." }),
+    __metadata("design:type", String)
+], ApplyLoanDTO.prototype, "accountStatement", void 0);

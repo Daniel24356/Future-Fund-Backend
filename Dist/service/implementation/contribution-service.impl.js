@@ -16,15 +16,33 @@ const customError_error_1 = require("../../exceptions/error/customError.error");
 const http_status_codes_1 = require("http-status-codes");
 const prisma = new client_1.PrismaClient();
 class ContributionServiceImpl {
+    //  async getAllContributionMembers(contributionId: string): Promise<ContributionMember[]> {
+    //     const contribution= await db.contribution.findFirst({
+    //       where: {
+    //         id: contributionId
+    //       },
+    //       include: {
+    //         members: true
+    //       }
+    //     })
+    //     if(!contribution){
+    //       throw new CustomError(StatusCodes.NOT_FOUND, "Contribution room not found")
+    //     }
+    //     return contribution.members
+    //   }
     getAllContributionMembers(contributionId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const contribution = yield db_1.db.contribution.findFirst({
+            if (!contributionId) {
+                throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "Invalid contribution ID");
+            }
+            const contribution = yield db_1.db.contribution.findUnique({
                 where: {
-                    id: contributionId
+                    id: contributionId,
                 },
                 include: {
-                    members: true
-                }
+                    members: true,
+                    createdBy: true
+                },
             });
             if (!contribution) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.NOT_FOUND, "Contribution room not found");
@@ -36,7 +54,7 @@ class ContributionServiceImpl {
         return __awaiter(this, void 0, void 0, function* () {
             const { userId, contributionId, amount } = data;
             const user = yield db_1.db.user.findUnique({
-                where: { id: userId }
+                where: { id: userId },
             });
             if (!user) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found");
@@ -72,6 +90,23 @@ class ContributionServiceImpl {
             return updatedContributionMember;
         });
     }
+    // async joinContribution(data: JoinContributionDTO): Promise<ContributionMember> {
+    //     const isMemberExists = await db.contributionMember.findFirst({
+    //         where: {
+    //           userId: data.userId,
+    //         }
+    //     })
+    //     if(isMemberExists){
+    //         throw new CustomError(StatusCodes.BAD_REQUEST, "User is already a member of this contribution room")
+    //     }
+    //     const newMember = await db.contributionMember.create({
+    //           data: {
+    //             userId: data.userId,
+    //             contributionId: data.contributionId
+    //           }
+    //     })
+    //     return newMember
+    // }
     createContribution(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             const isContributionExists = yield db_1.db.contribution.findFirst({
@@ -101,7 +136,7 @@ class ContributionServiceImpl {
             const isMemberExists = yield db_1.db.contributionMember.findFirst({
                 where: {
                     userId: data.userId,
-                }
+                },
             });
             if (isMemberExists) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "User is already a member of this contribution room");
@@ -109,8 +144,8 @@ class ContributionServiceImpl {
             const newMember = yield db_1.db.contributionMember.create({
                 data: {
                     userId: data.userId,
-                    contributionId: data.contributionId
-                }
+                    contributionId: data.contributionId,
+                },
             });
             return newMember;
         });
@@ -125,13 +160,20 @@ class ContributionServiceImpl {
             if (!isUser) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "This user doesn't exist");
             }
-            const contributions = yield db_1.db.contributionMember.findMany({
-                where: { userId },
-                include: {
-                    contribution: true,
-                },
+            const createdContributions = yield db_1.db.contribution.findMany({
+                where: { createdById: userId },
             });
-            return contributions;
+            const memberContributions = yield db_1.db.contribution.findMany({
+                where: { members: { some: { userId } } },
+            });
+            const contributions = new Map();
+            createdContributions.forEach(contribution => {
+                contributions.set(contribution.id, contribution);
+            });
+            memberContributions.forEach(contribution => {
+                contributions.set(contribution.id, contribution);
+            });
+            return Array.from(contributions.values());
         });
     }
     inviteUsersToContribution(contributionId, userIds) {

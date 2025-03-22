@@ -142,7 +142,6 @@ class UserServiceImpl {
                 data: { profilePicture: data.profilePicture },
             });
             console.log("Updated User:", updatedUser);
-            // Return updated user without the password field
             return {
                 id: updatedUser.id,
                 firstName: updatedUser.firstName,
@@ -157,6 +156,7 @@ class UserServiceImpl {
                 emailVerified: updatedUser.emailVerified,
                 createdAt: updatedUser.createdAt,
                 updatedAt: updatedUser.updatedAt,
+                creditScore: user.creditScore,
             };
         });
     }

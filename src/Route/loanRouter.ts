@@ -10,11 +10,10 @@ const loanController = new LoanController();
 const loanRouter = express.Router();
 
 loanRouter.post("/", authenticateUser, uploadSingle, loanController.applyForLoan);
-loanRouter.post("/", authenticateUser, loancontroller.applyForLoan);
-loanRouter.get("/getUserloans", authenticateUser, loancontroller.getUserLoans);
-loanRouter.post("/repayloan", authenticateUser, loancontroller.repayLoan);
-loanRouter.post("/updateloanStatus", authenticateUser, loancontroller.updateLoanStatus);
-loanRouter.get('/getUserActiveLoan', authenticateUser, loancontroller.getUserActiveLoan);
+loanRouter.get("/getUserloans", authenticateUser, loanController.getUserLoans);
+loanRouter.post("/repayloan", authenticateUser, loanController.repayLoan);
+loanRouter.post("/updateloanStatus", authenticateUser, loanController.updateLoanStatus);
+loanRouter.get('/getUserActiveLoan', authenticateUser, loanController.getUserActiveLoan);
 
 export default loanRouter;
 

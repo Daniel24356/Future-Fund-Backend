@@ -16,8 +16,8 @@ class ContributionController {
     constructor() {
         this.createContribution = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const contributionData = req.body;
                 const userId = req.userAuth || "";
+                const contributionData = req.body;
                 const newContribution = yield this.contributionService.createContribution(userId, contributionData);
                 res.status(201).json(newContribution);
             }
@@ -47,7 +47,7 @@ class ContributionController {
         });
         this.getUserContributions = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.params.id;
+                const userId = req.userAuth || "";
                 const contributions = yield this.contributionService.getUserContributions(userId);
                 res.status(200).json(contributions);
             }
@@ -57,7 +57,7 @@ class ContributionController {
         });
         this.getAllContributionMembers = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const contributionId = req.params.id;
+                const contributionId = req.params.contributionId;
                 const members = yield this.contributionService.getAllContributionMembers(contributionId);
                 res.status(200).json(members);
             }

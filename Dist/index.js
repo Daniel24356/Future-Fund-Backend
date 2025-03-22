@@ -16,7 +16,7 @@ const contributionRouter_1 = __importDefault(require("./Route/contributionRouter
 const investmentRouter_1 = __importDefault(require("./Route/investmentRouter"));
 const loanRouter_1 = __importDefault(require("./Route/loanRouter"));
 const walletRouter_1 = __importDefault(require("./Route/walletRouter"));
-require("./Jobs/LoanPayment.job");
+// import "./Jobs/LoanPayment.job"; 
 const transactionRoutes_1 = __importDefault(require("./Route/transactionRoutes"));
 const paymentRoutes_1 = __importDefault(require("./Route/paymentRoutes"));
 dotenv_1.default.config();

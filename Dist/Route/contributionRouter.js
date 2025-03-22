@@ -8,8 +8,8 @@ const contribution_controller_1 = require("../controllers/contribution.controlle
 const auth_middleware_1 = require("../Middleware/auth.middleware");
 const contributioncontroller = new contribution_controller_1.ContributionController();
 const contributionRouter = express_1.default.Router();
-contributionRouter.post("/", contributioncontroller.createContribution);
-contributionRouter.get("/getUserContribution/:userId", contributioncontroller.getUserContributions);
+contributionRouter.post("/", auth_middleware_1.authenticateUser, contributioncontroller.createContribution);
+contributionRouter.get("/getUserContribution/:userId", auth_middleware_1.authenticateUser, contributioncontroller.getUserContributions);
 contributionRouter.post("/joinContribution", contributioncontroller.joinContribution);
 contributionRouter.post("/payContribution", contributioncontroller.payContribution);
 contributionRouter.get("/members/:contributionId", contributioncontroller.getAllContributionMembers);

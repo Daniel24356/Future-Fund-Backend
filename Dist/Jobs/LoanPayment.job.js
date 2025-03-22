@@ -46,7 +46,7 @@ function sendEmail(to, subject, text) {
             return;
         try {
             yield transporter.sendMail({ from: process.env.SMTP_USER, to, subject, text });
-            logger.info(`📧 Email sent to ${to}: ${subject}`);
+            logger.info(`Email sent to ${to}: ${subject}`);
         }
         catch (error) {
             logger.error(`Email failed to ${to}: ${error}`);
@@ -72,7 +72,7 @@ function sendSMS(to, message) {
 }
 node_cron_1.default.schedule(cronSchedule, () => __awaiter(void 0, void 0, void 0, function* () {
     if (isRunning) {
-        logger.info("⏳ Previous cron job is still running. Skipping this execution.");
+        logger.info("Previous cron job is still running. Skipping this execution.");
         return;
     }
     isRunning = true;
