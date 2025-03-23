@@ -93,8 +93,8 @@ export class ContributionController{
         next: NextFunction
       ): Promise<void> => {
         try {
-          const { contributionId, userIds } = req.body;
-          await this.contributionService.inviteUsersToContribution(contributionId, userIds);
+          const { contributionId, userEmails } = req.body;
+          await this.contributionService.inviteUsersToContribution(contributionId, userEmails);
           res.status(StatusCodes.OK).json({ message: "Users invited successfully" });
         } catch (error) {
           next(error);

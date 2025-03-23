@@ -9,7 +9,7 @@ export interface ContributionService {
   payContribution(data: PayContributionDTO): Promise<ContributionMember>;
   getUserContributions(userId: string): Promise<Contribution[]>;
   getAllContributionMembers(contributionId: string): Promise<ContributionMember[]>;
-  inviteUsersToContribution(contributionId: string, userIds: string[]): Promise<void>;
+  inviteUsersToContribution(contributionId: string, userEmails: string[]): Promise<void>;
   verifyIdentityAndJoin(userId: string, contributionId: string, verificationData: any): Promise<ContributionMember>;
   assignContributionTurns(contributionId: string): Promise<void>
   agreeToPaymentTerms(userId: string, contributionId: string): Promise<void>;
