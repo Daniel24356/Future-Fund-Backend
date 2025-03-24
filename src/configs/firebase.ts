@@ -1,8 +1,9 @@
-// import admin, { ServiceAccount } from "firebase-admin";
-// import * as serviceAccount from "./future-fund-8c402-firebase-adminsdk-fbsvc-d3b09bf70d.json"; 
+import admin from "firebase-admin";
 
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount as ServiceAccount),
-// });
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG || "{}");
 
-// export default admin;
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+export default admin;
