@@ -213,8 +213,6 @@ export class ContributionServiceImpl implements ContributionService {
         }))
       })
 
-      const invitedEmails = users.map(user => user.email)
-      const notFoundEmails = userEmails.filter(email => !invitedEmails.includes(email))
     
   }
 
@@ -227,6 +225,12 @@ export class ContributionServiceImpl implements ContributionService {
     const member = await db.contributionMember.create({
       data: { userId, contributionId, status: PaymentStatus.UNPAID },
     });
+    await db.contributionInvitation.update({
+      where: { id: contributionId },
+      data:{
+        status: "ACCEPTED",
+      }
+    })
 
     return member;
   }
