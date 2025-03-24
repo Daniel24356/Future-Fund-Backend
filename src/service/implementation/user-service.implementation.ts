@@ -140,7 +140,6 @@ export class UserServiceImpl implements UserService {
     
       console.log("Updated User:", updatedUser);
     
-      // Return updated user without the password field
       return {
         id: updatedUser.id,
         firstName: updatedUser.firstName,
@@ -155,6 +154,7 @@ export class UserServiceImpl implements UserService {
         emailVerified: updatedUser.emailVerified,
         createdAt: updatedUser.createdAt,
         updatedAt: updatedUser.updatedAt,
+        creditScore: user.creditScore,
       };
     }
     

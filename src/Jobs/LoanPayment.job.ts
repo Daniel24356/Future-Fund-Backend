@@ -36,7 +36,7 @@ async function sendEmail(to: string, subject: string, text: string) {
   if (!to) return; 
   try {
     await transporter.sendMail({ from: process.env.SMTP_USER, to, subject, text });
-    logger.info(`📧 Email sent to ${to}: ${subject}`);
+    logger.info(`Email sent to ${to}: ${subject}`);
   } catch (error) {
     logger.error(`Email failed to ${to}: ${error}`);
   }
@@ -58,7 +58,7 @@ async function sendSMS(to: string | null, message: string) {
 
 cron.schedule(cronSchedule, async () => {
   if (isRunning) {
-    logger.info("⏳ Previous cron job is still running. Skipping this execution.");
+    logger.info("Previous cron job is still running. Skipping this execution.");
     return;
   }
 

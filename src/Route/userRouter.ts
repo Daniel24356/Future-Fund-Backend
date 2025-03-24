@@ -2,7 +2,8 @@ import express from "express";
 import { UserController } from "../controllers/user.controller";
 import { authenticateUser } from "../Middleware/auth.middleware";
 import { isAdmin } from "../Middleware/isAdmin.middleware";
-import { uploadToCloudinaryProfileImage } from "../configs/cloudinary.config";
+import { uploadToCloudinaryProfileImage } from "../utils/CloudinaryUploader"; // ✅ Correct
+
 
 const userController = new UserController();
 const userRouter = express.Router();
