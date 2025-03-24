@@ -4,4 +4,4 @@ node_modules
 .env
 
 src/configs/firebase.ts
-build/configs/firebase.ts
+build/configs/firebase.js
