@@ -105,6 +105,7 @@ export class ContributionServiceImpl implements ContributionService {
   }
 
    async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
+    console.log("User id: ", id)
        const isContributionExists = await db.contribution.findFirst({
         where: {
             name: data.name,
