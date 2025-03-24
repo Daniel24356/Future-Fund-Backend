@@ -65,7 +65,7 @@ class AuthServiceImp {
                                 lastName: data.lastName,
                                 role: data.role,
                                 otp: hashedOtp,
-                                otpExpiry: this.generateOtpExpiration().toString(),
+                                otpExpiresAt: this.generateOtpExpiration().toString(),
                             },
                         });
                         yield (0, Email_1.sendOtpEmail)({
@@ -99,14 +99,14 @@ class AuthServiceImp {
             if (user.emailVerified) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "Email already verified");
             }
-            if (!user.otp || !user.otpExpiry) {
+            if (!user.otp || !user.otpExpiresAt) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "OTP is not available for this user");
             }
             const isOtPValid = yield (0, password_utils_1.comparePassword)(data.otp, user.otp);
             if (!isOtPValid) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "Invalid OTP");
             }
-            const isExpiredOtp = Number(user.otpExpiry) < Number(new Date());
+            const isExpiredOtp = Number(user.otpExpiresAt) < Number(new Date());
             if (isExpiredOtp) {
                 throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "OTP is expired");
             }
@@ -117,7 +117,7 @@ class AuthServiceImp {
                 data: {
                     emailVerified: true,
                     otp: null,
-                    otpExpiry: null,
+                    otpExpiresAt: null,
                 },
             });
             //
