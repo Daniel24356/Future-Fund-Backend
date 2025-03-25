@@ -14,6 +14,7 @@ import walletRouter from "./Route/walletRouter";
 // import "./Jobs/LoanPayment.job"; 
 import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
+import { generateReference } from "./utils/generateAirtimeReference.util";
 
 dotenv.config();          
 
@@ -42,7 +43,9 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-setupSwagger(app);
+// setupSwagger(app);
+console.log(generateReference());
+
 
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/login", authRouter)
