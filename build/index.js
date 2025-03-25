@@ -20,6 +20,7 @@ const walletRouter_1 = __importDefault(require("./Route/walletRouter"));
 const transactionRoutes_1 = __importDefault(require("./Route/transactionRoutes"));
 const paymentRoutes_1 = __importDefault(require("./Route/paymentRoutes"));
 const twilioRouter_1 = __importDefault(require("./Route/twilioRouter"));
+const vTPassRoute_1 = __importDefault(require("./Route/vTPassRoute"));
 dotenv_1.default.config();
 const portEnv = process.env.PORT;
 if (!portEnv) {
@@ -52,6 +53,7 @@ app.use("/api/v1/wallet", walletRouter_1.default);
 app.use("/api/v1/transactions", transactionRoutes_1.default);
 app.use("/api/v1", paymentRoutes_1.default);
 app.use("/api/v1/twilio", twilioRouter_1.default);
+app.use("/api/v1/vtpass", vTPassRoute_1.default);
 app.use(errorHandler_1.errorHandler);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
