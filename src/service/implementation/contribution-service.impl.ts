@@ -145,6 +145,7 @@ export class ContributionServiceImpl implements ContributionService {
 
 
    async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
+    console.log("User id: ", id)
        const isContributionExists = await db.contribution.findFirst({
         where: {
             name: data.name,
@@ -225,12 +226,35 @@ export class ContributionServiceImpl implements ContributionService {
     return Array.from(contributions.values());
   }
 
-  async inviteUsersToContribution(contributionId: string, userIds: string[]): Promise<void> {
-    await Promise.all(userIds.map(async (userId) => {
-      await db.contributionInvitation.create({
-        data: { contributionId, userId, status: "PENDING" },
-      });
-    }));
+  async inviteUsersToContribution(contributionId: string, userEmails: string[]): Promise<void> {
+    if(!Array.isArray(userEmails) || userEmails.length === 0){
+      throw new CustomError(StatusCodes.BAD_REQUEST, "Emails must be an array with at least one email.")
+    }
+    const users = await db.user.findMany({
+      where: {
+        email: {
+          in: userEmails
+        },
+      },
+      select: {
+        id: true,
+        email: true
+      }
+    })
+
+    if(users.length === 0){
+      throw new CustomError(StatusCodes.BAD_REQUEST, "No users found with the provided emails")
+    }
+    
+      await db.contributionInvitation.createMany({
+        data: users.map(user => ({ 
+        contributionId, 
+        userId: user.id, 
+        status: "PENDING" 
+        }))
+      })
+
+    
   }
 
   async verifyIdentityAndJoin(userId: string, contributionId: string, verificationData: any): Promise<ContributionMember> {
@@ -242,6 +266,12 @@ export class ContributionServiceImpl implements ContributionService {
     const member = await db.contributionMember.create({
       data: { userId, contributionId, status: PaymentStatus.UNPAID },
     });
+    await db.contributionInvitation.update({
+      where: { id: contributionId },
+      data:{
+        status: "ACCEPTED",
+      }
+    })
 
     return member;
   }
