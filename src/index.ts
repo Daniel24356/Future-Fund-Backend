@@ -15,6 +15,7 @@ import walletRouter from "./Route/walletRouter";
 import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
 import twiliorouter from "./Route/twilioRouter";
+import vtpassRouter from "./Route/vTPassRoute";
 
 dotenv.config();          
 
@@ -56,6 +57,7 @@ app.use("/api/v1/wallet", walletRouter)
 app.use("/api/v1/transactions", epinsrouter);
 app.use("/api/v1", router);
 app.use("/api/v1/twilio", twiliorouter);
+app.use("/api/v1/vtpass", vtpassRouter);
 
 app.use(errorHandler)
 
