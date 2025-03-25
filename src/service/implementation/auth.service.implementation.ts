@@ -66,7 +66,7 @@ export class AuthServiceImp implements AuthService {
                   lastName: data.lastName,
                   role: data.role,
                   otp: hashedOtp,
-                  otpExpiry: this.generateOtpExpiration().toString(),
+                  otpExpiresAt: this.generateOtpExpiration().toString(),
                 },
               });
     
@@ -108,7 +108,7 @@ export class AuthServiceImp implements AuthService {
         if (user.emailVerified) {
           throw new CustomError(StatusCodes.BAD_REQUEST, "Email already verified");
         }
-        if (!user.otp || !user.otpExpiry) {
+        if (!user.otp || !user. otpExpiresAt) {
           throw new CustomError(
             StatusCodes.BAD_REQUEST,
             "OTP is not available for this user"
@@ -120,7 +120,7 @@ export class AuthServiceImp implements AuthService {
           throw new CustomError(StatusCodes.BAD_REQUEST, "Invalid OTP");
         }
     
-        const isExpiredOtp = Number(user.otpExpiry) < Number(new Date());
+        const isExpiredOtp = Number(user. otpExpiresAt) < Number(new Date());
     
         if (isExpiredOtp) {
           throw new CustomError(StatusCodes.BAD_REQUEST, "OTP is expired");
@@ -133,7 +133,7 @@ export class AuthServiceImp implements AuthService {
           data: {
             emailVerified: true,
             otp: null,
-            otpExpiry: null,
+            otpExpiresAt: null,
           },
         });
         //

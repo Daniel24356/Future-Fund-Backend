@@ -78,7 +78,7 @@ model User {
   role           UserRole @default(USER)
   emailVerified  Boolean   @default(false)
   otp            String?
-  otpExpiry      String?
+  otpExpiresAt      DateTime?
   phoneNumber    String?  @unique
   profilePicture String?
   transactions   Transaction[]

@@ -152,7 +152,7 @@ class UserServiceImpl {
                 phoneNumber: updatedUser.phoneNumber,
                 profilePicture: updatedUser.profilePicture,
                 otp: updatedUser.otp,
-                otpExpiry: updatedUser.otpExpiry,
+                otpExpiresAt: updatedUser.otpExpiresAt,
                 emailVerified: updatedUser.emailVerified,
                 createdAt: updatedUser.createdAt,
                 updatedAt: updatedUser.updatedAt,
