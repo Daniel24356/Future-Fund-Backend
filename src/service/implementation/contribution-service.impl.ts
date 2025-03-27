@@ -1,5 +1,6 @@
 import {
   Contribution,
+  ContributionInvitationStatus,
   ContributionMember,
   PaymentStatus,
   PrismaClient,
@@ -146,6 +147,14 @@ export class ContributionServiceImpl implements ContributionService {
 
    async createContribution(id: string, data: CreateContributionDTO): Promise<Contribution> {
     console.log("User id: ", id)
+    const userExists = await db.user.findUnique({
+      where: { id }, // Ensure `createdById` is a valid UUID
+    });
+    
+    if (!userExists) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, "User does not exist");
+    }
+    
        const isContributionExists = await db.contribution.findFirst({
         where: {
             name: data.name,
@@ -227,9 +236,11 @@ export class ContributionServiceImpl implements ContributionService {
   }
 
   async inviteUsersToContribution(contributionId: string, userEmails: string[]): Promise<void> {
+    console.log("inviteUsersToContribution called");
     if(!Array.isArray(userEmails) || userEmails.length === 0){
       throw new CustomError(StatusCodes.BAD_REQUEST, "Emails must be an array with at least one email.")
     }
+    console.log("Invite Users called with emails: ", userEmails);
     const users = await db.user.findMany({
       where: {
         email: {
@@ -241,19 +252,35 @@ export class ContributionServiceImpl implements ContributionService {
         email: true
       }
     })
+    console.log("Fetched users:", users);
+    console.log("Type of users:", typeof users, Array.isArray(users));
 
     if(users.length === 0){
       throw new CustomError(StatusCodes.BAD_REQUEST, "No users found with the provided emails")
     }
+
+    const invitationsData = users.map(user => ({
+      contributionId,
+      userId: user.email,
+      status: ContributionInvitationStatus.PENDING
+
+    }));
+    console.log("Invitation data to be created:", invitationsData);
+
+    const createResult = await db.contributionInvitation.createMany({
+      data: invitationsData
+    });
+
+    console.log("Invitation creation result:", createResult);
     
-      await db.contributionInvitation.createMany({
-        data: users.map(user => ({ 
+    const userArray = Array.isArray(users) ? users : [] 
+     await db.contributionInvitation.createMany({
+        data: userArray.map(user => ({ 
         contributionId, 
         userId: user.id, 
         status: "PENDING" 
         }))
-      })
-
+      }) 
     
   }
 

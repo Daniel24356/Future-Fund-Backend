@@ -109,6 +109,13 @@ class ContributionServiceImpl {
     // }
     createContribution(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("User id: ", id);
+            const userExists = yield db_1.db.user.findUnique({
+                where: { id }, // Ensure `createdById` is a valid UUID
+            });
+            if (!userExists) {
+                throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not exist");
+            }
             const isContributionExists = yield db_1.db.contribution.findFirst({
                 where: {
                     name: data.name,
@@ -176,13 +183,47 @@ class ContributionServiceImpl {
             return Array.from(contributions.values());
         });
     }
-    inviteUsersToContribution(contributionId, userIds) {
+    inviteUsersToContribution(contributionId, userEmails) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Promise.all(userIds.map((userId) => __awaiter(this, void 0, void 0, function* () {
-                yield db_1.db.contributionInvitation.create({
-                    data: { contributionId, userId, status: "PENDING" },
-                });
-            })));
+            console.log("inviteUsersToContribution called");
+            if (!Array.isArray(userEmails) || userEmails.length === 0) {
+                throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "Emails must be an array with at least one email.");
+            }
+            console.log("Invite Users called with emails:", userEmails);
+            const users = yield db_1.db.user.findMany({
+                where: {
+                    email: {
+                        in: userEmails
+                    },
+                },
+                select: {
+                    id: true,
+                    email: true
+                }
+            });
+            console.log("Fetched users:", users);
+            console.log("Type of users:", typeof users, Array.isArray(users));
+            if (users.length === 0) {
+                throw new customError_error_1.CustomError(http_status_codes_1.StatusCodes.BAD_REQUEST, "No users found with the provided emails");
+            }
+            // const invitationsData = users.map(user => ({
+            //   contributionId,
+            //   userId: user.id,
+            //   status: ContributionInvitationStatus.PENDING
+            // }));
+            // console.log("Invitation data to be created:", invitationsData);
+            // const createResult = await db.contributionInvitation.createMany({
+            //   data: invitationsData
+            // });
+            // console.log("Invitation creation result:", createResult);
+            // const userArray = Array.isArray(users) ? users : [] 
+            //  await db.contributionInvitation.createMany({
+            //     data: userArray.map(user => ({ 
+            //     contributionId, 
+            //     userId: user.id, 
+            //     status: "PENDING" 
+            //     }))
+            //   }) 
         });
     }
     verifyIdentityAndJoin(userId, contributionId, verificationData) {
@@ -193,6 +234,12 @@ class ContributionServiceImpl {
             }
             const member = yield db_1.db.contributionMember.create({
                 data: { userId, contributionId, status: client_1.PaymentStatus.UNPAID },
+            });
+            yield db_1.db.contributionInvitation.update({
+                where: { id: contributionId },
+                data: {
+                    status: "ACCEPTED",
+                }
             });
             return member;
         });

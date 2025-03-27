@@ -156,7 +156,7 @@ model Investment {
 model Contribution {
   id                String               @id @default(uuid())
   name              String
-  createdBy         User                 @relation(fields: [createdById], references: [id])
+  createdBy         User                 @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById       String
   members           ContributionMember[]
   amountPerUser     Float

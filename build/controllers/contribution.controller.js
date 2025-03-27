@@ -67,8 +67,8 @@ class ContributionController {
         });
         this.inviteUsersToContribution = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { contributionId, userIds } = req.body;
-                yield this.contributionService.inviteUsersToContribution(contributionId, userIds);
+                const { contributionId, userEmails } = req.body;
+                yield this.contributionService.inviteUsersToContribution(contributionId, userEmails);
                 res.status(http_status_codes_1.StatusCodes.OK).json({ message: "Users invited successfully" });
             }
             catch (error) {
