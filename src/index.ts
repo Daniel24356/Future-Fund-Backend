@@ -16,6 +16,8 @@ import epinsrouter from "./Route/transactionRoutes";
 import router from "./Route/paymentRoutes";
 import twiliorouter from "./Route/twilioRouter";
 import vtpassRouter from "./Route/vTPassRoute";
+import cron from "node-cron";
+import sendPushNotification from "./service/sendNotification"
 
 dotenv.config();          
 
@@ -61,6 +63,12 @@ app.use("/api/v1/vtpass", vtpassRouter);
 
 app.use(errorHandler)
 
+cron.schedule("*/1 * * * *", () => {
+    console.log("Sending Daily Push Notification...");
+    sendPushNotification();
+ });
+ 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
+

@@ -16,7 +16,7 @@ contributionRouter.get("/members/:contributionId", contributioncontroller.getAll
 contributionRouter.post("/invite", auth_middleware_1.authenticateUser, contributioncontroller.inviteUsersToContribution);
 contributionRouter.post("/join", auth_middleware_1.authenticateUser, contributioncontroller.joinContribution);
 contributionRouter.post("/agree", auth_middleware_1.authenticateUser, contributioncontroller.agreeToPaymentTerms);
-contributionRouter.post("/assign", auth_middleware_1.authenticateUser, contributioncontroller.assignContributionTurns);
+contributionRouter.get("/assign/:contributionId", auth_middleware_1.authenticateUser, contributioncontroller.assignContributionTurns);
 contributionRouter.post("/start", auth_middleware_1.authenticateUser, contributioncontroller.startContributionCycle);
 contributionRouter.post("/enforce-trust", auth_middleware_1.authenticateUser, contributioncontroller.enforceTrustBuildingPeriod);
 contributionRouter.post("/payouts", auth_middleware_1.authenticateUser, contributioncontroller.processPayouts);

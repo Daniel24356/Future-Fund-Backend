@@ -74,11 +74,11 @@ model User {
   email          String   @unique
   password       String
   creditScore     Int     @default(200)
-  balance        Float    @default(0.0)
+  balance        Float    @default(1000000.0)
   role           UserRole @default(USER)
   emailVerified  Boolean   @default(false)
   otp            String?
-  otpExpiresAt      DateTime?
+  otpExpiresAt   DateTime?
   phoneNumber    String?  @unique
   profilePicture String?
   transactions   Transaction[]

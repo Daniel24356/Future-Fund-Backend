@@ -21,6 +21,8 @@ const transactionRoutes_1 = __importDefault(require("./Route/transactionRoutes")
 const paymentRoutes_1 = __importDefault(require("./Route/paymentRoutes"));
 const twilioRouter_1 = __importDefault(require("./Route/twilioRouter"));
 const vTPassRoute_1 = __importDefault(require("./Route/vTPassRoute"));
+const node_cron_1 = __importDefault(require("node-cron"));
+const sendNotification_1 = __importDefault(require("./service/sendNotification"));
 dotenv_1.default.config();
 const portEnv = process.env.PORT;
 if (!portEnv) {
@@ -55,6 +57,10 @@ app.use("/api/v1", paymentRoutes_1.default);
 app.use("/api/v1/twilio", twilioRouter_1.default);
 app.use("/api/v1/vtpass", vTPassRoute_1.default);
 app.use(errorHandler_1.errorHandler);
+node_cron_1.default.schedule("*/1 * * * *", () => {
+    console.log("Sending Daily Push Notification...");
+    (0, sendNotification_1.default)();
+});
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
